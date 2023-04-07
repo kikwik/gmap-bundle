@@ -1,0 +1,21 @@
+{
+    "name": "kikwik/gmap-bundle",
+    "description": "Google Map and Geocoder support for Symfony 5.4",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Davide Scarpato",
+            "email": "davide@kikwik.it"
+        }
+    ],
+    "require": {
+        "php": ">=7.2.5",
+        "symfony/framework-bundle": "^5.3|^6.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Kikwik\\GmapBundle\\": "src/"
+        }
+    }
+}
