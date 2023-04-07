@@ -1,0 +1,5 @@
+providers:
+    googleMaps:
+        factory: Bazinga\GeocoderBundle\ProviderFactory\GoogleMapsFactory
+        options:
+            api_key: '%env(GMAP_API_KEY)%'

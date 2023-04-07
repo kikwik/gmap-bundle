@@ -11,11 +11,21 @@
     ],
     "require": {
         "php": ">=7.2.5",
-        "symfony/framework-bundle": "^5.3|^6.0"
+        "symfony/framework-bundle": "^5.3|^6.0",
+        "geocoder-php/google-maps-provider": "^4.5",
+        "symfony/http-client": "^5.3",
+        "willdurand/geocoder-bundle": "^5.13",
+        "nyholm/psr7": "^1.5",
+        "symfony/yaml": "^5.3"
     },
     "autoload": {
         "psr-4": {
             "Kikwik\\GmapBundle\\": "src/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
         }
     }
 }
