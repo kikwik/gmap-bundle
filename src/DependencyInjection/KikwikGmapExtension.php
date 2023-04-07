@@ -13,8 +13,11 @@ class KikwikGmapExtension extends Extension implements PrependExtensionInterface
 {
     public function prepend(ContainerBuilder $container)
     {
-        $configForCmfRouting = Yaml::parseFile(__DIR__.'/../Resources/config/bazinga_geocoder.yaml');
-        $container->prependExtensionConfig('bazinga_geocoder', $configForCmfRouting);
+        $bazingaGeocoderConfig = Yaml::parseFile(__DIR__.'/../Resources/config/bazinga_geocoder.yaml');
+        $container->prependExtensionConfig('bazinga_geocoder', $bazingaGeocoderConfig);
+
+        $stofDoctrineExtensionConfig = Yaml::parseFile(__DIR__.'/../Resources/config/stof_doctrine_extensions.yaml');
+        $container->prependExtensionConfig('stof_doctrine_extensions', $stofDoctrineExtensionConfig);
     }
 
 
