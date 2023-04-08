@@ -12,11 +12,11 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('kikwik_gmap');
         $rootNode = $treeBuilder->getRootNode();
 
-//        $rootNode
-//            ->children()
-//                ->scalarNode('some_param')->defaultValue('some value')->cannotBeEmpty()->end()
-//            ->end()
-//        ;
+        $rootNode
+            ->children()
+                ->scalarNode('gmapApiKeyJs')->defaultValue('%env(GMAP_API_KEY_JS)%')->cannotBeEmpty()->end()
+            ->end()
+        ;
 
         return $treeBuilder;
     }

@@ -87,7 +87,6 @@ trait GeocodableEntityTrait
      */
     private $geocodeQuery;
 
-
     /**
      * @ORM\Column(type="text", nullable=true)
      */
@@ -116,7 +115,7 @@ trait GeocodableEntityTrait
             $this->geocodedAt = new \DateTimeImmutable();
 
             /** @var AddressCollection $results */
-            $results = $provider->geocodeQuery(GeocodeQuery::create($this->geocodeQuery));
+            $results = $provider->geocodeQuery(GeocodeQuery::create($this->geocodeQuery)->withLocale('it'));
             $this->geocodeResult = serialize($results);
 
             if($results->isEmpty())

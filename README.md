@@ -175,3 +175,40 @@ Use the `--failed` option to try to geocode the failed ones
 ```console
 $ php bin/console kikwik:gmap:geocode --limit=5 --failed
 ```
+
+Display Maps for a single object
+--------------------------------
+
+- Call the `kw_gmap_script` twig function inside the javascripts block to initialize the GMap library
+
+```twig
+{% block javascripts %}
+    {{ parent() }}
+ 
+    {{ kw_gmap_script_tags() }}
+{% endblock %}
+```
+
+- Place a div on the page for every map, with these data attributes:
+    - data-lat="xxx"
+    - data-lng="yyy"
+    - data-icon="/path/to/icon"
+- (optional) Place another div for the street view element
+
+```twig
+<div id="map-1" 
+    data-lat="{{ place.latitude }}" 
+    data-lng="{{ place.longitude }}"
+    data-icon="{{ asset('map/agenzia-small.png') }}"
+    >
+</div>
+<div id="street-1"></div>
+```
+
+- call the `kwMap` function passing the DomID of the div(s)
+
+```twig
+<script>
+    kwMap(document.getElementById("map-1"), document.getElementById("street-1"));
+</script>
+```

@@ -5,11 +5,16 @@
         http://symfony.com/schema/dic/services/services-1.0.xsd">
   <services>
 
-    <!-- GeocodeCommand -->
+    <!-- Command\GeocodeCommand -->
     <service id="kikwik_gmap.command.geocode_command" class="Kikwik\GmapBundle\Command\GeocodeCommand">
       <argument type="service" id="doctrine.orm.entity_manager" />
       <argument type="service" id="bazinga_geocoder.provider.googleMaps" />
       <tag name="console.command" command="kikwik:gmap:geocode" />
+    </service>
+
+    <!-- Twig\GmapExtension -->
+    <service id="kikwik_gmap.twig.gmap_extension" class="Kikwik\GmapBundle\Twig\GmapExtension">
+      <tag name="twig.extension"/>
     </service>
 
   </services>

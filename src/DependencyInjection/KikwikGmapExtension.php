@@ -13,9 +13,11 @@ class KikwikGmapExtension extends Extension implements PrependExtensionInterface
 {
     public function prepend(ContainerBuilder $container)
     {
+        // bazinga_geocoder configuration
         $bazingaGeocoderConfig = Yaml::parseFile(__DIR__.'/../Resources/config/bazinga_geocoder.yaml');
         $container->prependExtensionConfig('bazinga_geocoder', $bazingaGeocoderConfig);
 
+        // stof_doctrine_extensions configuration
         $stofDoctrineExtensionConfig = Yaml::parseFile(__DIR__.'/../Resources/config/stof_doctrine_extensions.yaml');
         $container->prependExtensionConfig('stof_doctrine_extensions', $stofDoctrineExtensionConfig);
     }
@@ -29,6 +31,8 @@ class KikwikGmapExtension extends Extension implements PrependExtensionInterface
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
 
+        $twigExtension = $container->getDefinition('kikwik_gmap.twig.gmap_extension');
+        $twigExtension->setArgument('$gmapApiKeyJs', $config['gmapApiKeyJs']);
     }
 
 }
