@@ -1,6 +1,6 @@
 <?php
 
-namespace Kikwik\GmapBundle\Traits;
+namespace Kikwik\GmapBundle\Geocodable;
 
 use Doctrine\ORM\QueryBuilder;
 

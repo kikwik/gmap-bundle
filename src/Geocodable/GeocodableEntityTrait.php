@@ -1,15 +1,21 @@
 <?php
 
-namespace Kikwik\GmapBundle\Traits;
+namespace Kikwik\GmapBundle\Geocodable;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Geocoder\Provider\GoogleMaps\Model\GoogleAddress;
 use Geocoder\Provider\Provider;
 use Geocoder\Query\GeocodeQuery;
 
 
 trait GeocodableEntityTrait
 {
+
+    /**************************************/
+    /* PUBLIC PROPERTIES                  */
+    /**************************************/
+
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -39,6 +45,10 @@ trait GeocodableEntityTrait
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $country;
+
+    /**************************************/
+    /* PRIVATE PROPERTIES                 */
+    /**************************************/
 
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
@@ -71,26 +81,45 @@ trait GeocodableEntityTrait
      */
     private $geocodeStatus;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $geocodeQuery;
+
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $geocodeResult;
+
+    /**************************************/
+    /* GEOCODE METHODS                    */
+    /**************************************/
+
     public function isGeocoded(): bool
     {
         return $this->latitude && $this->longitude;
     }
 
-    public function getNeedGeocode(): bool
+    public function needGeocode(): bool
     {
-        return !$this->isGeocoded() || $this->addressUpdatedAt > $this->geocodedAt;
+        return !$this->isGeocoded()
+            || $this->addressUpdatedAt > $this->geocodedAt
+            || $this->createGeocodeQueryString() != $this->geocodeQuery;
     }
 
-    public function doGeocode(Provider $provider)
+    public function doGeocode(Provider $provider): self
     {
         try {
-            $results = $provider->geocodeQuery(GeocodeQuery::create($this->getAddress()));
+            $this->geocodeQuery = $this->createGeocodeQueryString();
+            $this->geocodedAt = new \DateTimeImmutable();
+            $results = $provider->geocodeQuery(GeocodeQuery::create($this->geocodeQuery));
+            $this->geocodeResult = serialize($results);
             foreach($results as $googleAddress)
             {
                 $this->latitude = $googleAddress->getCoordinates()->getLatitude();
                 $this->longitude = $googleAddress->getCoordinates()->getLongitude();
                 $this->formattedAddress = $googleAddress->getFormattedAddress();
-                $this->geocodedAt = new \DateTimeImmutable();
                 $this->geocodeStatus = 'OK';
                 break;
             }
@@ -99,15 +128,16 @@ trait GeocodableEntityTrait
         {
             $this->geocodeStatus = $e->getMessage();
         }
+        return $this;
     }
 
-    public function setCoordinates(?float $latitude, ?float $longitude)
+    public function setCoordinates(?float $latitude, ?float $longitude): self
     {
         $this->latitude = $latitude;
         $this->longitude = $longitude;
         if($this->isGeocoded())
         {
-            $this->formattedAddress = $this->getAddress();
+            $this->formattedAddress = $this->createGeocodeQueryString();
             $this->geocodedAt = new \DateTimeImmutable();
             $this->geocodeStatus = 'OK';
         }
@@ -117,9 +147,13 @@ trait GeocodableEntityTrait
             $this->geocodedAt = null;
             $this->geocodeStatus = null;
         }
+        $this->geocodeQuery = null;
+        $this->geocodeResult = null;
+
+        return $this;
     }
 
-    public function getAddress(): string
+    public function createGeocodeQueryString(): string
     {
         return $this->street.', '.$this->streetNumber.', '.$this->zipCode.' '.$this->city.' '.$this->province.', '.$this->country;
     }
@@ -139,170 +173,136 @@ trait GeocodableEntityTrait
             : null;
     }
 
+
+    /**************************************/
+    /* GETTERS FOR GEOCODED DATA          */
+    /**************************************/
+
+    public function getGeocodedAt(): ?\DateTimeInterface
+    {
+        return $this->geocodedAt;
+    }
+
+    public function getLatitude(): ?float
+    {
+        return $this->latitude;
+    }
+
+    public function getLongitude(): ?float
+    {
+        return $this->longitude;
+    }
+
+    public function getFormattedAddress(): ?string
+    {
+        return $this->formattedAddress;
+    }
+
+    public function getGeocodeStatus(): ?string
+    {
+        return $this->geocodeStatus;
+    }
+
+    public function getGeocodeQuery(): ?string
+    {
+        return $this->geocodeQuery;
+    }
+
     /**
-     * @return mixed
+     * @return false or GoogleAddress[]
      */
-    public function getStreet()
+    public function getGeocodeResult()
+    {
+        return unserialize($this->geocodeResult);
+    }
+
+
+    /****************************************/
+    /* GETTERS AND SETTERS FOR ADDRESS DATA */
+    /****************************************/
+
+    public function getStreet(): ?string
     {
         return $this->street;
     }
 
-    /**
-     * @param mixed $street
-     * @return GeocodableEntityTrait
-     */
-    public function setStreet($street)
+    public function setStreet(?string $street): self
     {
         $this->street = $street;
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getStreetNumber()
+    public function getStreetNumber(): ?string
     {
         return $this->streetNumber;
     }
 
-    /**
-     * @param mixed $streetNumber
-     * @return GeocodableEntityTrait
-     */
-    public function setStreetNumber($streetNumber)
+    public function setStreetNumber(?string $streetNumber): self
     {
         $this->streetNumber = $streetNumber;
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getZipCode()
+    public function getZipCode(): ?string
     {
         return $this->zipCode;
     }
 
-    /**
-     * @param mixed $zipCode
-     * @return GeocodableEntityTrait
-     */
-    public function setZipCode($zipCode)
+    public function setZipCode(?string $zipCode): self
     {
         $this->zipCode = $zipCode;
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getCity()
+    public function getCity(): ?string
     {
         return $this->city;
     }
 
-    /**
-     * @param mixed $city
-     * @return GeocodableEntityTrait
-     */
-    public function setCity($city)
+    public function setCity(?string $city): self
     {
         $this->city = $city;
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getProvince()
+    public function getProvince(): ?string
     {
         return $this->province;
     }
 
-    /**
-     * @param mixed $province
-     * @return GeocodableEntityTrait
-     */
-    public function setProvince($province)
+    public function setProvince(?string $province): self
     {
         $this->province = $province;
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getCountry()
+    public function getCountry(): ?string
     {
         return $this->country;
     }
 
-    /**
-     * @param mixed $country
-     * @return GeocodableEntityTrait
-     */
-    public function setCountry($country)
+    public function setCountry(?string $country): self
     {
         $this->country = $country;
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getAddressUpdatedAt()
+
+    /**************************************/
+    /* SETTER FOR GEDMO TIMESTAMPABLE     */
+    /**************************************/
+
+    public function getAddressUpdatedAt(): ?\DateTimeInterface
     {
         return $this->addressUpdatedAt;
     }
 
-    /**
-     * @param mixed $addressUpdatedAt
-     * @return GeocodableEntityTrait
-     */
     public function setAddressUpdatedAt($addressUpdatedAt)
     {
         $this->addressUpdatedAt = $addressUpdatedAt;
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getGeocodedAt()
-    {
-        return $this->geocodedAt;
-    }
 
-    /**
-     * @return mixed
-     */
-    public function getLatitude()
-    {
-        return $this->latitude;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getLongitude()
-    {
-        return $this->longitude;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getFormattedAddress()
-    {
-        return $this->formattedAddress;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getGeocodeStatus()
-    {
-        return $this->geocodeStatus;
-    }
 
 }
