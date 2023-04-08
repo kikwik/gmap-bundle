@@ -160,3 +160,18 @@ class GmapController extends AbstractController
     }
 }
 ```
+
+Geocode Command
+---------------
+
+With the `kikwik:gmap:geocode` command you can batch geocode all the entities that need to be geocoded (never geocoded or with address changed after the last geocode) 
+
+```console
+$ php bin/console kikwik:gmap:geocode --limit=5
+```
+
+Use the `--failed` option to try to geocode the failed ones
+
+```console
+$ php bin/console kikwik:gmap:geocode --limit=5 --failed
+```

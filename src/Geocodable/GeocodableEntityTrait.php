@@ -4,6 +4,7 @@ namespace Kikwik\GmapBundle\Geocodable;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Geocoder\Model\AddressCollection;
 use Geocoder\Provider\GoogleMaps\Model\GoogleAddress;
 use Geocoder\Provider\Provider;
 use Geocoder\Query\GeocodeQuery;
@@ -113,15 +114,25 @@ trait GeocodableEntityTrait
         try {
             $this->geocodeQuery = $this->createGeocodeQueryString();
             $this->geocodedAt = new \DateTimeImmutable();
+
+            /** @var AddressCollection $results */
             $results = $provider->geocodeQuery(GeocodeQuery::create($this->geocodeQuery));
             $this->geocodeResult = serialize($results);
-            foreach($results as $googleAddress)
+
+            if($results->isEmpty())
             {
+                $this->latitude = null;
+                $this->longitude = null;
+                $this->formattedAddress = null;
+                $this->geocodeStatus = 'ZERO_RESULTS';
+            }
+            else
+            {
+                $googleAddress = $results->first();
                 $this->latitude = $googleAddress->getCoordinates()->getLatitude();
                 $this->longitude = $googleAddress->getCoordinates()->getLongitude();
                 $this->formattedAddress = $googleAddress->getFormattedAddress();
                 $this->geocodeStatus = 'OK';
-                break;
             }
         }
         catch(\Throwable $e)
@@ -208,12 +219,12 @@ trait GeocodableEntityTrait
         return $this->geocodeQuery;
     }
 
-    /**
-     * @return false or GoogleAddress[]
-     */
-    public function getGeocodeResult()
+    public function getGeocodeResult(): ?AddressCollection
     {
-        return unserialize($this->geocodeResult);
+        $addressCollection = unserialize($this->geocodeResult);
+        return $addressCollection instanceof AddressCollection
+            ? $addressCollection
+            : null;
     }
 
 

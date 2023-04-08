@@ -2,6 +2,7 @@
 
 namespace Kikwik\GmapBundle\Geocodable;
 
+use Geocoder\Model\AddressCollection;
 use Geocoder\Provider\Provider;
 
 interface GeocodableEntityInterface
@@ -66,7 +67,7 @@ interface GeocodableEntityInterface
     public function getFormattedAddress(): ?string;
     public function getGeocodeStatus(): ?string;
     public function getGeocodeQuery(): ?string;
-    public function getGeocodeResult(); // return false or an array of GoogleAddress
+    public function getGeocodeResult(): ?AddressCollection;
 
     /**
      * Getters and Setters for address data
