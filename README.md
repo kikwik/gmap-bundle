@@ -1,7 +1,7 @@
 KikwikGmapBundle
 ================
 
-Google Map and Geocoder support for Symfony 5.4
+Google Map and Geocoder support for Symfony 5
 
 
 
@@ -59,7 +59,7 @@ class MyService
     public function doGeocode(string $address)
     {
         // create the GeocodeQuery with the address to geocode
-        $geocodeQuery = GeocodeQuery::create('via Tucidide 56, Milano')
+        $geocodeQuery = GeocodeQuery::create('piazza Duomo 1, Milano')
             ->withLocale('it');
             
         // ask geocode to the $googleMapsGeocoder provider,
@@ -83,14 +83,9 @@ Use the provided traits to be quick:
 ```php
 namespace App\Entity;
 
-use App\Repository\PlaceRepository;
-use Doctrine\ORM\Mapping as ORM;
 use Kikwik\GmapBundle\Geocodable\GeocodableEntityInterface;
 use Kikwik\GmapBundle\Geocodable\GeocodableEntityTrait;
 
-/**
- * @ORM\Entity(repositoryClass=PlaceRepository::class)
- */
 class Place implements GeocodableEntityInterface
 {
     use GeocodableEntityTrait;
@@ -102,19 +97,9 @@ class Place implements GeocodableEntityInterface
 ```php
 namespace App\Repository;
 
-use App\Entity\Place;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Kikwik\GmapBundle\Geocodable\GeocodableRepositoryInterface;
 use Kikwik\GmapBundle\Geocodable\GeocodableRepositoryTrait;
 
-/**
- * @extends ServiceEntityRepository<Place>
- *
- * @method Place|null find($id, $lockMode = null, $lockVersion = null)
- * @method Place|null findOneBy(array $criteria, array $orderBy = null)
- * @method Place[]    findAll()
- * @method Place[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
 class PlaceRepository extends ServiceEntityRepository implements GeocodableRepositoryInterface
 {
     use GeocodableRepositoryTrait;

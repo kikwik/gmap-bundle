@@ -1,6 +1,6 @@
 {
     "name": "kikwik/gmap-bundle",
-    "description": "Google Map and Geocoder support for Symfony 5.4",
+    "description": "Google Map and Geocoder support for Symfony 5",
     "type": "symfony-bundle",
     "license": "MIT",
     "authors": [
