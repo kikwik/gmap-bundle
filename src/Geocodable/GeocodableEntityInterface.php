@@ -84,6 +84,8 @@ interface GeocodableEntityInterface
     public function setProvince(?string $province): self;
     public function getCountry(): ?string;
     public function setCountry(?string $country): self;
+    public function getGeocodeQueryLocale(): string;
+    public function setGeocodeQueryLocale(string $geocodeQueryLocale): self;
 
     /**
      * Getters and Setter for Gedmo Timestampable

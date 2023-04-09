@@ -88,6 +88,11 @@ trait GeocodableEntityTrait
     private $geocodeQuery;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $geocodeQueryLocale = 'it';
+
+    /**
      * @ORM\Column(type="text", nullable=true)
      */
     private $geocodeResult;
@@ -115,7 +120,7 @@ trait GeocodableEntityTrait
             $this->geocodedAt = new \DateTimeImmutable();
 
             /** @var AddressCollection $results */
-            $results = $provider->geocodeQuery(GeocodeQuery::create($this->geocodeQuery)->withLocale('it'));
+            $results = $provider->geocodeQuery(GeocodeQuery::create($this->geocodeQuery)->withLocale($this->getGeocodeQueryLocale()));
             $this->geocodeResult = serialize($results);
 
             if($results->isEmpty())
@@ -296,6 +301,18 @@ trait GeocodableEntityTrait
         $this->country = $country;
         return $this;
     }
+
+    public function getGeocodeQueryLocale(): string
+    {
+        return $this->geocodeQueryLocale ?? 'it';
+    }
+
+    public function setGeocodeQueryLocale(string $geocodeQueryLocale): self
+    {
+        $this->geocodeQueryLocale = $geocodeQueryLocale;
+        return $this;
+    }
+
 
 
     /**************************************/

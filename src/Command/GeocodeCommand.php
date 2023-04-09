@@ -34,7 +34,7 @@ class GeocodeCommand extends Command
     protected function configure()
     {
         $this
-            ->addOption('limit',null, InputOption::VALUE_OPTIONAL,'Limit the number of request (per entity type)',1)
+            ->addOption('limit',null, InputOption::VALUE_OPTIONAL,'Limit the number of request (per entity type)',5)
             ->addOption('failed',null,InputOption::VALUE_NONE,'Try to geocode the failed ones')
         ;
     }
