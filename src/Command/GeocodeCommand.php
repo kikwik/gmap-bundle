@@ -5,6 +5,7 @@ namespace Kikwik\GmapBundle\Command;
 use Doctrine\ORM\EntityManagerInterface;
 use Geocoder\Provider\Provider;
 use Kikwik\GmapBundle\Geocodable\GeocodableEntityInterface;
+use Kikwik\GmapBundle\Geocodable\GeocodeStatus;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -77,13 +78,26 @@ class GeocodeCommand extends Command
                 $this->entityManager->persist($object);
                 $this->entityManager->flush();
 
+                switch($object->getGeocodeStatus())
+                {
+                    case GeocodeStatus::OK:
+                        $status = '<info>'.$object->getGeocodeStatus().'</info>';
+                        break;
+                    case GeocodeStatus::ZERO_RESULTS:
+                        $status = '<comment>'.$object->getGeocodeStatus().'</comment>';
+                        break;
+                    default:
+                        $status = '<error>'.$object->getGeocodeStatus().'</error>';
+                        break;
+                }
+
                 if($object->isGeocoded())
                 {
-                    $io->writeln('           <info>'.$object->getLatitude().'</info> <info>'.$object->getLongitude().'</info> '.$object->getFormattedAddress());
+                    $io->writeln('           '.$status.' - <info>'.$object->getLatitude().'</info> <info>'.$object->getLongitude().'</info> '.$object->getFormattedAddress());
                 }
                 else
                 {
-                    $io->writeln('           <error>'.$object->getGeocodeStatus().'</error>');
+                    $io->writeln('           '.$status);
                 }
             }
 

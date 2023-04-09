@@ -108,7 +108,7 @@ trait GeocodableEntityTrait
 
     public function needGeocode(): bool
     {
-        return !$this->isGeocoded()
+        return (!$this->isGeocoded() && !$this->geocodeStatus)
             || $this->addressUpdatedAt > $this->geocodedAt
             || $this->createGeocodeQueryString() != $this->geocodeQuery;
     }
@@ -128,7 +128,7 @@ trait GeocodableEntityTrait
                 $this->latitude = null;
                 $this->longitude = null;
                 $this->formattedAddress = null;
-                $this->geocodeStatus = 'ZERO_RESULTS';
+                $this->geocodeStatus = GeocodeStatus::ZERO_RESULTS;
             }
             else
             {
@@ -136,7 +136,7 @@ trait GeocodableEntityTrait
                 $this->latitude = $googleAddress->getCoordinates()->getLatitude();
                 $this->longitude = $googleAddress->getCoordinates()->getLongitude();
                 $this->formattedAddress = $googleAddress->getFormattedAddress();
-                $this->geocodeStatus = 'OK';
+                $this->geocodeStatus = GeocodeStatus::OK;
             }
         }
         catch(\Throwable $e)
@@ -154,7 +154,7 @@ trait GeocodableEntityTrait
         {
             $this->formattedAddress = $this->createGeocodeQueryString();
             $this->geocodedAt = new \DateTimeImmutable();
-            $this->geocodeStatus = 'OK';
+            $this->geocodeStatus = GeocodeStatus::OK;
         }
         else
         {
@@ -332,4 +332,42 @@ trait GeocodableEntityTrait
 
 
 
+    /**************************************/
+    /* ADMIN INFO                         */
+    /**************************************/
+
+    public function getGeocodeInfoHtml()
+    {
+        $result = '';
+
+        if($this->isGeocoded())
+        {
+            $result .= '<a href="'.$this->getGmapsUrl().'" target="_blank" class="btn radius-1 btn-sm btn-brc-tp btn-outline-primary btn-h-outline-primary btn-a-outline-primary btn-text-primary" data-toggle="tooltip" title="'.$this->formattedAddress.'"><i class="fas fa-map-marked-alt"></i></a>';
+        }
+
+        if($this->needGeocode())
+        {
+            $result .= '<i class="fas fa-exclamation-triangle text-warning" data-toggle="tooltip" title="Outdated position"></i>&nbsp;';
+        }
+
+        switch($this->geocodeStatus)
+        {
+            case GeocodeStatus::OK:
+                $result .= '<span class="badge badge-success">OK</span>';
+                break;
+            case GeocodeStatus::ZERO_RESULTS:
+                $result .= '<span class="badge badge-warning">ZERO_RESULTS</span>';
+                break;
+            default:
+                if($this->geocodeStatus)
+                {
+                    $result .= '<span class="badge badge-danger" data-toggle="tooltip" title="'.$this->geocodeStatus.'">ERROR</span>';
+                }
+                break;
+        }
+
+
+
+        return $result;
+    }
 }

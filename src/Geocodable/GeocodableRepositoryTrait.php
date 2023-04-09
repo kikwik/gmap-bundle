@@ -16,7 +16,7 @@ trait GeocodableRepositoryTrait
     {
         return $this->createQueryBuilder($alias)
             ->andWhere($alias.'.geocodeStatus IS NOT NULL')
-            ->andWhere($alias.'.geocodeStatus <> :geocodeStatus')
-            ->setParameter('geocodeStatus','OK');
+            ->andWhere($alias.'.geocodeStatus NOT IN (:geocodeStatuses)')
+            ->setParameter('geocodeStatuses',[GeocodeStatus::OK,GeocodeStatus::ZERO_RESULTS]);
     }
 }
