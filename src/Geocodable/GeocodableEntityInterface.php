@@ -24,7 +24,7 @@ interface GeocodableEntityInterface
      * @param Provider $provider
      * @return mixed
      */
-    public function doGeocode(Provider $provider): self;
+    public function doGeocode(Provider $provider): GeocodableEntityInterface;
 
     /**
      * Set the coordinates withoud asking the geocoding
@@ -35,7 +35,7 @@ interface GeocodableEntityInterface
      * @param float $longitude
      * @return mixed
      */
-    public function setCoordinates(?float $latitude, ?float $longitude): self;
+    public function setCoordinates(?float $latitude, ?float $longitude): GeocodableEntityInterface;
 
     /**
      * Compose the plain text address for geocoding

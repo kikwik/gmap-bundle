@@ -164,10 +164,16 @@ Display Maps for a single object
 --------------------------------
 
 - Place a div on the page for every map, with these data attributes:
-  - data-lat="xxx"
-  - data-lng="yyy"
-  - data-icon="/path/to/icon"
-- (optional) Place another div for the street view element
+  - `data-map-center` a json string that represent a LatLngLiteral
+  - `data-map-zoom` an integer value
+  - `data-map-markers` a json string that represent an array of marker descriptor, each marker descriptor must have the following fields
+      - `lat` latitude value (float)
+      - `lng` longitude value (float)
+      - `info` the google.maps.InfoWindow content (optional)
+      - `icon` the icon file (optional)
+      - `id` the id of the object (optional)
+
+some examples:
 
 ```twig
 Empty map centered in australia:

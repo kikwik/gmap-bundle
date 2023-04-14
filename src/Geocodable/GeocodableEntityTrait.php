@@ -113,7 +113,7 @@ trait GeocodableEntityTrait
             || $this->createGeocodeQueryString() != $this->geocodeQuery;
     }
 
-    public function doGeocode(Provider $provider): self
+    public function doGeocode(Provider $provider): GeocodableEntityInterface
     {
         try {
             $this->geocodeQuery = $this->createGeocodeQueryString();
@@ -146,7 +146,7 @@ trait GeocodableEntityTrait
         return $this;
     }
 
-    public function setCoordinates(?float $latitude, ?float $longitude): self
+    public function setCoordinates(?float $latitude, ?float $longitude): GeocodableEntityInterface
     {
         $this->latitude = $latitude;
         $this->longitude = $longitude;
@@ -175,9 +175,11 @@ trait GeocodableEntityTrait
 
     public function getAddressHtml(): string
     {
-        $address = $this->street.' '.$this->streetNumber.'<br/>';
+        $address = trim($this->street.' '.$this->streetNumber);
+        if($address) $address .= '<br/>';
         $address .= $this->zipCode.' '.$this->city;
         if($this->province) $address .= ' ('.$this->province.')';
+        if($this->country) $address .= '<br/>'.$this->country;
         return $address;
     }
 
