@@ -17,5 +17,11 @@
       <tag name="twig.extension"/>
     </service>
 
+
+    <!-- Service\Geocoder -->
+    <service id="kikwik_gmap.service.geocoder" class="Kikwik\GmapBundle\Service\Geocoder" public="true">
+      <argument type="service" id="bazinga_geocoder.provider.googleMaps" />
+    </service>
+
   </services>
 </container>

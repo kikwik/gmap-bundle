@@ -113,16 +113,19 @@ Then you can set address to the entity and ask to geocode her self (passing the 
 ```php
 namespace App\Controller;
 
-use App\Repository\PlaceRepository;
 use Geocoder\Provider\Provider;
 
 class GmapController extends AbstractController
 {
-    public function index(PlaceRepository $placeRepository, Provider $googleMapsGeocoder)
+    /**
+     * @Route("/gmap/new", name="app_gmap_new")
+     */
+    public function createNewPlace(Provider $googleMapsGeocoder, EntityManagerInterface $entityManager)
     {
         // create an object that implement GeocodableEntityInterface
-        $place = new Place(); 
-        
+        /** @var Kikwik\GmapBundle\Geocodable\GeocodableEntityInterface $place */
+        $place = new Place();
+
         // fill the address fields
         $place->setStreet('Piazza Duomo');
         $place->setStreetNumber('1');
@@ -130,18 +133,14 @@ class GmapController extends AbstractController
         $place->setCity('Milano');
         $place->setProvince('MI');
         $place->setCountry('Italia');
-        
+
         // Ask geocode by passing the provider
         $place->doGeocode($googleMapsGeocoder);
-        
-        if($place->isGeocoded())
-        {
-            // now we can use the geocoded data
-            $latitude = $place->getLatitude();
-            $longitude = $place->getLongitude();
-            $formattedAddress = $place->getFormattedAddress();
-            $mapLink = $place->getGmapsUrl();
-        }
+
+        $entityManager->persist($place);
+        $entityManager->flush();
+
+        return $this->redirect($place->getGmapsUrl());
     }
 }
 ```
@@ -155,7 +154,7 @@ With the `kikwik:gmap:geocode` command you can batch geocode all the entities th
 $ php bin/console kikwik:gmap:geocode --limit=5
 ```
 
-Use the `--failed` option to try to geocode the failed ones
+Use the `--failed` option to try to geocode again the failed ones
 
 ```console
 $ php bin/console kikwik:gmap:geocode --limit=5 --failed
