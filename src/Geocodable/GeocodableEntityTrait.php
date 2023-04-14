@@ -190,7 +190,7 @@ trait GeocodableEntityTrait
 
 
     /**************************************/
-    /* GETTERS FOR GEOCODED DATA          */
+    /* GETTERS FOR SAVED GEOCODED DATA    */
     /**************************************/
 
     public function getGeocodedAt(): ?\DateTimeInterface
@@ -231,6 +231,19 @@ trait GeocodableEntityTrait
             : null;
     }
 
+    /****************************************/
+    /* GETTERS FOR MAP DISPLAY              */
+    /****************************************/
+
+    public function getInfoWindowContent(): ?string
+    {
+        return null;
+    }
+
+    public function getMarkerIcon(): ?string
+    {
+        return null;
+    }
 
     /****************************************/
     /* GETTERS AND SETTERS FOR ADDRESS DATA */

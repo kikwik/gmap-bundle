@@ -163,36 +163,50 @@ $ php bin/console kikwik:gmap:geocode --limit=5 --failed
 Display Maps for a single object
 --------------------------------
 
-- Call the `kw_gmap_script` twig function inside the javascripts block to initialize the GMap library
+- Place a div on the page for every map, with these data attributes:
+  - data-lat="xxx"
+  - data-lng="yyy"
+  - data-icon="/path/to/icon"
+- (optional) Place another div for the street view element
+
+```twig
+Empty map centered in australia:
+<div class="ratio ratio-1x1">
+    <div class="kw-map" data-map-center="{{ { lat: -31.56391, lng: 147.154312 } | json_encode }}"></div>
+</div>
+
+Empty map centered in place (an GeocodableEntityInterface object):
+<div class="ratio ratio-1x1">
+    <div class="kw-map" {{ kw_map_data_center(place) }}></div>
+</div>
+
+Map with marker in all places (an array of GeocodableEntityInterface object):
+<div class="ratio ratio-1x1">
+    <div class="kw-map" {{ kw_map_data_markers(places) }}></div>
+</div>
+
+Map with marker in all places (an array of GeocodableEntityInterface object) centered in the first one:
+<div class="ratio ratio-1x1">
+    <div class="kw-map" {{ kw_map_data_center(places[0]) }} {{ kw_map_data_markers(places) }}></div>
+</div>
+```
+
+
+- Call the `kw_gmap_script` twig function inside the javascripts block to initialize the GMap library and call the `kwMap` function passing the DOM element
 
 ```twig
 {% block javascripts %}
     {{ parent() }}
  
     {{ kw_gmap_script_tags() }}
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let mapElements = document.querySelectorAll('.kw-map');
+            mapElements.forEach(function (mapElement){
+                kwMap(mapElement);
+            })
+        });
+    </script>
 {% endblock %}
 ```
 
-- Place a div on the page for every map, with these data attributes:
-    - data-lat="xxx"
-    - data-lng="yyy"
-    - data-icon="/path/to/icon"
-- (optional) Place another div for the street view element
-
-```twig
-<div id="map-1" 
-    data-lat="{{ place.latitude }}" 
-    data-lng="{{ place.longitude }}"
-    data-icon="{{ asset('map/agenzia-small.png') }}"
-    >
-</div>
-<div id="street-1"></div>
-```
-
-- call the `kwMap` function passing the DomID of the div(s)
-
-```twig
-<script>
-    kwMap(document.getElementById("map-1"), document.getElementById("street-1"));
-</script>
-```

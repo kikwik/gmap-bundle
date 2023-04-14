@@ -70,6 +70,12 @@ interface GeocodableEntityInterface
     public function getGeocodeResult(): ?AddressCollection;
 
     /**
+     * Getters for map display
+     */
+    public function getInfoWindowContent(): ?string;
+    public function getMarkerIcon(): ?string;
+
+    /**
      * Getters and Setters for address data
      */
     public function getStreet(): ?string;

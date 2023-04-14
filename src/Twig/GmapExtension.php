@@ -2,6 +2,7 @@
 
 namespace Kikwik\GmapBundle\Twig;
 
+use Kikwik\GmapBundle\Geocodable\GeocodableEntityInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -21,6 +22,8 @@ class GmapExtension extends AbstractExtension
     {
         return [
             new TwigFunction('kw_gmap_script_tags', [$this, 'getGmapScriptTags'], ['is_safe'=>['html']]),
+            new TwigFunction('kw_map_data_center', [$this, 'getDataAttributeMapCenter'], ['is_safe'=>['html']]),
+            new TwigFunction('kw_map_data_markers', [$this, 'getDataAttributeMapMarkers'], ['is_safe'=>['html']]),
         ];
     }
 
@@ -32,10 +35,39 @@ class GmapExtension extends AbstractExtension
     // Use the 'v' parameter to indicate the version to load (alpha, beta, weekly, etc.)
   });
 </script>
+<script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
 SCRIPT;
 
     public function getGmapScriptTags()
     {
         return str_replace('YOUR_API_KEY_HERE',$this->gmapApiKeyJs,$this->_gmapInit).'<script src="bundles/kikwikgmap/kwMap.js"></script>';
+    }
+
+    public function getDataAttributeMapCenter(GeocodableEntityInterface $entity)
+    {
+        $data = [
+            'lat' => $entity->getLatitude(),
+            'lng' => $entity->getLongitude()
+        ];
+        return 'data-map-center="'.htmlspecialchars(json_encode($data)).'"';
+    }
+
+    public function getDataAttributeMapMarkers(array $entities)
+    {
+        $data = [];
+        foreach($entities as $entity)
+        {
+            if($entity->isGeocoded())
+            {
+                $data[] = [
+                    'lat' => $entity->getLatitude(),
+                    'lng' => $entity->getLongitude(),
+                    'info' => $entity->getInfoWindowContent(),
+                    'icon' => $entity->getMarkerIcon(),
+                    'id' => $entity->getId()
+                ];
+            }
+        }
+        return 'data-map-markers="'.htmlspecialchars(json_encode($data)).'"';
     }
 }
