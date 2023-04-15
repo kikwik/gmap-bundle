@@ -172,13 +172,21 @@ Display Maps for a single object
       - `info` the google.maps.InfoWindow content (optional)
       - `icon` the icon file (optional)
       - `id` the id of the object (optional)
+  - `data-map-cluster` a json string that represent the SuperCluster options (see https://github.com/mapbox/supercluster#options)
+
+You can use the twig helpers:
+  - {{ kw_map_data_center(-31.56391, 147.154312) }} or {{ kw_map_data_center(place) }}
+  - {{ kw_map_data_zoom(3) }}
+  - {{ kw_map_data_markers(places) }}
+  - {{ kw_map_data_cluster({ maxZoom: 10, minPoints: 5 }) }}
+
 
 some examples:
 
 ```twig
 Empty map centered in australia:
 <div class="ratio ratio-1x1">
-    <div class="kw-map" data-map-center="{{ { lat: -31.56391, lng: 147.154312 } | json_encode }}"></div>
+    <div class="kw-map" {{ kw_map_data_center(-31.56391, 147.154312) }}"></div>
 </div>
 
 Empty map centered in place (an GeocodableEntityInterface object):
@@ -191,9 +199,9 @@ Map with marker in all places (an array of GeocodableEntityInterface object):
     <div class="kw-map" {{ kw_map_data_markers(places) }}></div>
 </div>
 
-Map with marker in all places (an array of GeocodableEntityInterface object) centered in the first one:
+Map with marker in all places (an array of GeocodableEntityInterface object) centered in the first one with zoom=3:
 <div class="ratio ratio-1x1">
-    <div class="kw-map" {{ kw_map_data_center(places[0]) }} {{ kw_map_data_markers(places) }}></div>
+    <div class="kw-map" {{ kw_map_data_center(places[0]) }} {{ kw_map_data_zoom(3) }} {{ kw_map_data_markers(places) }}></div>
 </div>
 ```
 

@@ -23,7 +23,9 @@ class GmapExtension extends AbstractExtension
         return [
             new TwigFunction('kw_gmap_script_tags', [$this, 'getGmapScriptTags'], ['is_safe'=>['html']]),
             new TwigFunction('kw_map_data_center', [$this, 'getDataAttributeMapCenter'], ['is_safe'=>['html']]),
+            new TwigFunction('kw_map_data_zoom', [$this, 'getDataAttributeMapZoom'], ['is_safe'=>['html']]),
             new TwigFunction('kw_map_data_markers', [$this, 'getDataAttributeMapMarkers'], ['is_safe'=>['html']]),
+            new TwigFunction('kw_map_data_cluster', [$this, 'getDataAttributeMapCluster'], ['is_safe'=>['html']]),
         ];
     }
 
@@ -43,13 +45,33 @@ SCRIPT;
         return str_replace('YOUR_API_KEY_HERE',$this->gmapApiKeyJs,$this->_gmapInit).'<script src="bundles/kikwikgmap/kwMap.js"></script>';
     }
 
-    public function getDataAttributeMapCenter(GeocodableEntityInterface $entity)
+    public function getDataAttributeMapCenter($param1, $param2 = null)
     {
-        $data = [
-            'lat' => $entity->getLatitude(),
-            'lng' => $entity->getLongitude()
-        ];
+        if($param1 instanceof GeocodableEntityInterface)
+        {
+            $data = [
+                'lat' => $param1->getLatitude(),
+                'lng' => $param1->getLongitude()
+            ];
+        }
+        elseif(is_float($param1) && is_float($param2))
+        {
+            $data = [
+                'lat' => $param1,
+                'lng' => $param2
+            ];
+        }
+        else
+        {
+            throw new \TypeError('Arguments passed to Kikwik\GmapBundle\Twig\GmapExtension::getDataAttributeMapCenter() must be one object that implement interface Kikwik\GmapBundle\Geocodable\GeocodableEntityInterface or two floats');
+        }
+
         return 'data-map-center="'.htmlspecialchars(json_encode($data)).'"';
+    }
+
+    public function getDataAttributeMapZoom(int $value)
+    {
+        return 'data-map-zoom="'.$value.'"';
     }
 
     public function getDataAttributeMapMarkers(array $entities)
@@ -70,4 +92,10 @@ SCRIPT;
         }
         return 'data-map-markers="'.htmlspecialchars(json_encode($data)).'"';
     }
+
+    public function getDataAttributeMapCluster(array $options = [])
+    {
+        return 'data-map-cluster="'.htmlspecialchars(json_encode($options)).'"';
+    }
+
 }

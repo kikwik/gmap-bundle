@@ -32,12 +32,8 @@ async function kwMap(mapElement, streetElement) {
         }
     }
 
-    reCenterMap();
-    reZoomMap();
-
-    // TODO: check attribute: data-map-cluster
-
-    new markerClusterer.MarkerClusterer({ map, markers });
+    doCenterMap();
+    doMakeCluster();
 
 
     // TODO: check attribute: data-map-street-view
@@ -74,9 +70,8 @@ async function kwMap(mapElement, streetElement) {
                 {
                     addMarker(jsonDatum);
                 }
-                reCenterMap();
-                reZoomMap();
-                new markerClusterer.MarkerClusterer({ map, markers });
+                doCenterMap();
+                doMakeCluster();
             })
             .catch(function (error){
                 console.log('Error loading '+mapElement.dataset.clusterUrl+': '+error);
@@ -113,38 +108,34 @@ async function kwMap(mapElement, streetElement) {
         mapBounds.extend(new google.maps.LatLng(parseFloat(jsonMarker.lat), parseFloat(jsonMarker.lng)));
     }
 
-    function reCenterMap()
+    function doCenterMap()
     {
-        if(!mapElement.dataset.mapCenter) // if data-map-center is not defined, recalculate the center of the map
+        if(markers.length == 1)  // one marker
         {
-            if(markers.length == 1)
-            {
-                // one marker
+            if(!mapElement.dataset.mapCenter) {
                 map.setCenter(markers[0].getPosition());
             }
-            else if(markers.length > 1)
+            if(!mapElement.dataset.mapZoom) {
+                map.setZoom(15);
+            }
+        }
+        else if(markers.length > 1) // multiple markers
+        {
+            if(!mapElement.dataset.mapCenter && !mapElement.dataset.mapZoom)
             {
-                // multiple markers
-                map.setCenter(mapBounds.getCenter());
                 map.fitBounds(mapBounds);
             }
         }
     }
 
-    function reZoomMap()
+    function doMakeCluster()
     {
-        if(!mapElement.dataset.mapZoom) // if data-map-zoom is not defined, recalculate the zoom of the map
+        // check attribute: data-map-cluster
+        if(mapElement.dataset.mapCluster)
         {
-            if(markers.length == 1)
-            {
-                // one marker
-                map.setZoom(15);
-            }
-            else if(markers.length > 1)
-            {
-                // multiple markers
-                // map.fitBounds(mapBounds);
-            }
+            const options = JSON.parse(mapElement.dataset.mapCluster);
+            const algorithm = new markerClusterer.SuperClusterAlgorithm(options);
+            new markerClusterer.MarkerClusterer({ algorithm, map, markers });
         }
     }
 }
