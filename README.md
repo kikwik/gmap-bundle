@@ -162,38 +162,61 @@ $ php bin/console kikwik:gmap:geocode --limit=5 --failed
 
 Display Maps for a single object
 --------------------------------
+Place a div on the page for every map, and use the twig helpers for:
+  - set map center with `{{ kw_map_data_center(-31.56391, 147.154312) }}` (pass a couple of float)
+  - set map center with `{{ kw_map_data_center(place) }}` (pass a GeocodableEntityInterface object)
+  - set map zoom with `{{ kw_map_data_zoom(3) }}` (pass an integer)
+  - load markers with `{{ kw_map_data_markers(places) }}` (pass an array of GeocodableEntityInterface objects)
+  - activate cluster feature with `{{ kw_map_data_cluster({ maxZoom: 10, minPoints: 5 }) }}` (pass SuperCluster options, see https://github.com/mapbox/supercluster#options)
+  - load remote markers with `{{ kw_map_data_remote_markers(asset('path/to/file.json')) }}`
+  - bound a search form with `{{ kw_map_data_search_address('#map-address','#map-address-submit', 15) }}` (pass the css selector of the input text and submit button, the last parameter (zoom) is optional and defaults to 13)
 
-- Place a div on the page for every map, with these data attributes:
+Here all the data-attribute supported:
   - `data-map-center` a json string that represent a LatLngLiteral
   - `data-map-zoom` an integer value
   - `data-map-markers` a json string that represent an array of marker descriptor, each marker descriptor must have the following fields
-      - `lat` latitude value (float)
-      - `lng` longitude value (float)
-      - `info` the google.maps.InfoWindow content (optional)
-      - `icon` the icon file (optional)
-      - `id` the id of the object (optional)
+    - `lat` latitude value (float)
+    - `lng` longitude value (float)
+    - `info` the google.maps.InfoWindow content (optional)
+    - `icon` the icon file (optional)
+    - `id` the id of the object (optional)
   - `data-map-cluster` a json string that represent the SuperCluster options (see https://github.com/mapbox/supercluster#options)
   - `data-map-remote-markers` an url from which load markers in json format
+  - `data-map-search-address` the css selector of the input text used to center the map
+  - `data-map-search-submit` the css selector of the submit button used to center the map
+  - `data-map-search-zoom` the zoom level after a successful address search
 
-You can use the twig helpers:
-  - {{ kw_map_data_center(-31.56391, 147.154312) }} or {{ kw_map_data_center(place) }}
-  - {{ kw_map_data_zoom(3) }}
-  - {{ kw_map_data_markers(places) }}
-  - {{ kw_map_data_cluster({ maxZoom: 10, minPoints: 5 }) }}
-  - {{ kw_map_data_remote_markers(asset('path/to/file.json')) }}
 
 
 some examples:
 
 ```twig
+<form>
+    <input type="text" id="map-address" placeholder="Ricerca per città, indirizzo, CAP...">
+    <button type="submit" id="map-address-submit">Cerca ›</button>
+</form>
+
+Map with clustered external data and search box:
+<div class="ratio ratio-1x1">
+    <div class="kw-map"
+            {{ kw_map_data_remote_markers(asset('agenzie.json')) }}
+            {{ kw_map_data_cluster({ maxZoom: 10, minPoints: 10 }) }}
+            {{ kw_map_data_search_address('#map-address','#map-address-submit') }}
+    ></div>
+</div>
+            
 Empty map centered in australia:
 <div class="ratio ratio-1x1">
-    <div class="kw-map" {{ kw_map_data_center(-31.56391, 147.154312) }}"></div>
+    <div class="kw-map"
+            {{ kw_map_data_center(-31.56391, 147.154312) }}
+    ></div>
 </div>
 
 Empty map centered in place (an GeocodableEntityInterface object):
 <div class="ratio ratio-1x1">
-    <div class="kw-map" {{ kw_map_data_center(place) }}></div>
+    <div class="kw-map" 
+            {{ kw_map_data_center(place) }}
+    ></div>
 </div>
 
 Map with marker in all places (an array of GeocodableEntityInterface object):
@@ -203,12 +226,17 @@ Map with marker in all places (an array of GeocodableEntityInterface object):
 
 Map with marker in all places (an array of GeocodableEntityInterface object) centered in the first one with zoom=3:
 <div class="ratio ratio-1x1">
-    <div class="kw-map" {{ kw_map_data_center(places[0]) }} {{ kw_map_data_zoom(3) }} {{ kw_map_data_markers(places) }}></div>
+    <div class="kw-map"
+            {{ kw_map_data_center(places[0]) }}
+            {{ kw_map_data_zoom(3) }}
+            {{ kw_map_data_markers(places) }}
+            {{ kw_map_data_search_address('#map-address','#map-address-submit',20) }}
+    ></div>
 </div>
 ```
 
 
-- Call the `kw_gmap_script` twig function inside the javascripts block to initialize the GMap library and call the `kwMap` function passing the DOM element
+Finally call the `kw_gmap_script` twig function inside the javascripts block to initialize the GMap library and call the `kwMap` function passing the DOM element
 
 ```twig
 {% block javascripts %}

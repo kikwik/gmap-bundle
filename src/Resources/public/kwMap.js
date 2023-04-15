@@ -10,51 +10,12 @@ async function kwMap(mapElement, streetElement) {
         zoom: 4,                                        // about a country by default
     });
 
-    // check attribute: data-map-center
-    if(mapElement.dataset.mapCenter)
-    {
-        map.setCenter(JSON.parse(mapElement.dataset.mapCenter));
-    }
-
-    // check attribute: data-map-zoom
-    if(mapElement.dataset.mapZoom)
-    {
-        map.setZoom(parseInt(mapElement.dataset.mapZoom));
-    }
-
-    // check attribute: data-map-markers
-    if(mapElement.dataset.mapMarkers)
-    {
-        jsonData = JSON.parse(mapElement.dataset.mapMarkers);
-        for(jsonDatum of jsonData)
-        {
-            addMarker(jsonDatum);
-        }
-    }
-
-    // check attribute: data-map-remote-markers
-    if(mapElement.dataset.mapRemoteMarkers)
-    {
-        // load markers
-        fetch(mapElement.dataset.mapRemoteMarkers)
-            .then(function (response){
-                return response.json();
-            })
-            .then(function (jsonData){
-                for(jsonDatum of jsonData)
-                {
-                    addMarker(jsonDatum);
-                }
-                doCenterMap();
-                doMakeCluster();
-            })
-            .catch(function (error){
-                console.log('Error loading '+mapElement.dataset.mapRemoteMarkers+': '+error);
-            })
-    }
-
+    doLoadMarkers();
     doCenterMap();
     doMakeCluster();
+
+    addSearchListener();
+
 
 
     // TODO: check attribute: data-map-street-view
@@ -112,6 +73,18 @@ async function kwMap(mapElement, streetElement) {
 
     function doCenterMap()
     {
+        // check attribute: data-map-center
+        if(mapElement.dataset.mapCenter)
+        {
+            map.setCenter(JSON.parse(mapElement.dataset.mapCenter));
+        }
+
+        // check attribute: data-map-zoom
+        if(mapElement.dataset.mapZoom)
+        {
+            map.setZoom(parseInt(mapElement.dataset.mapZoom));
+        }
+
         if(markers.length == 1)  // one marker
         {
             if(!mapElement.dataset.mapCenter) {
@@ -130,6 +103,40 @@ async function kwMap(mapElement, streetElement) {
         }
     }
 
+    function doLoadMarkers()
+    {
+        // check attribute: data-map-markers
+        if(mapElement.dataset.mapMarkers)
+        {
+            jsonData = JSON.parse(mapElement.dataset.mapMarkers);
+            for(jsonDatum of jsonData)
+            {
+                addMarker(jsonDatum);
+            }
+        }
+
+        // check attribute: data-map-remote-markers
+        if(mapElement.dataset.mapRemoteMarkers)
+        {
+            // load markers
+            fetch(mapElement.dataset.mapRemoteMarkers)
+                .then(function (response){
+                    return response.json();
+                })
+                .then(function (jsonData){
+                    for(jsonDatum of jsonData)
+                    {
+                        addMarker(jsonDatum);
+                    }
+                    doCenterMap();
+                    doMakeCluster();
+                })
+                .catch(function (error){
+                    console.log('Error loading '+mapElement.dataset.mapRemoteMarkers+': '+error);
+                })
+        }
+    }
+
     function doMakeCluster()
     {
         if(markers.length > 1) // multiple markers
@@ -141,6 +148,29 @@ async function kwMap(mapElement, streetElement) {
                 const algorithm = new markerClusterer.SuperClusterAlgorithm(options);
                 new markerClusterer.MarkerClusterer({ algorithm, map, markers });
             }
+        }
+    }
+
+    function addSearchListener()
+    {
+        // check attribute: data-map-search-address, data-map-search-submit and data-map-search-zoom
+        if(mapElement.dataset.mapSearchAddress && mapElement.dataset.mapSearchSubmit && mapElement.dataset.mapSearchZoom)
+        {
+            let geocoder = new google.maps.Geocoder();
+            let submit = document.querySelector(mapElement.dataset.mapSearchSubmit);
+            submit.addEventListener('click',function (e){
+                e.preventDefault();
+                let text = document.querySelector(mapElement.dataset.mapSearchAddress);
+                geocoder.geocode( { 'address': text.value}, function(results, status) {
+                    if (status == 'OK') {
+                        map.setCenter(results[0].geometry.location);
+                        map.setZoom(parseInt(mapElement.dataset.mapSearchZoom));
+                    } else {
+                        doCenterMap();
+                        // alert(text.value+' ' + status);
+                    }
+                });
+            })
         }
     }
 }
