@@ -32,6 +32,27 @@ async function kwMap(mapElement, streetElement) {
         }
     }
 
+    // check attribute: data-map-remote-markers
+    if(mapElement.dataset.mapRemoteMarkers)
+    {
+        // load markers
+        fetch(mapElement.dataset.mapRemoteMarkers)
+            .then(function (response){
+                return response.json();
+            })
+            .then(function (jsonData){
+                for(jsonDatum of jsonData)
+                {
+                    addMarker(jsonDatum);
+                }
+                doCenterMap();
+                doMakeCluster();
+            })
+            .catch(function (error){
+                console.log('Error loading '+mapElement.dataset.mapRemoteMarkers+': '+error);
+            })
+    }
+
     doCenterMap();
     doMakeCluster();
 
@@ -57,26 +78,7 @@ async function kwMap(mapElement, streetElement) {
     // }
 
 
-    // multiple markers (ajax)
-    if(mapElement.dataset.merkersUrl)
-    {
-        // load markers
-        fetch(mapElement.dataset.merkersUrl)
-            .then(function (response){
-                return response.json();
-            })
-            .then(function (jsonData){
-                for(jsonDatum of jsonData)
-                {
-                    addMarker(jsonDatum);
-                }
-                doCenterMap();
-                doMakeCluster();
-            })
-            .catch(function (error){
-                console.log('Error loading '+mapElement.dataset.clusterUrl+': '+error);
-            })
-    }
+
 
 
     return map;
@@ -130,12 +132,15 @@ async function kwMap(mapElement, streetElement) {
 
     function doMakeCluster()
     {
-        // check attribute: data-map-cluster
-        if(mapElement.dataset.mapCluster)
+        if(markers.length > 1) // multiple markers
         {
-            const options = JSON.parse(mapElement.dataset.mapCluster);
-            const algorithm = new markerClusterer.SuperClusterAlgorithm(options);
-            new markerClusterer.MarkerClusterer({ algorithm, map, markers });
+            // check attribute: data-map-cluster
+            if(mapElement.dataset.mapCluster)
+            {
+                const options = JSON.parse(mapElement.dataset.mapCluster);
+                const algorithm = new markerClusterer.SuperClusterAlgorithm(options);
+                new markerClusterer.MarkerClusterer({ algorithm, map, markers });
+            }
         }
     }
 }

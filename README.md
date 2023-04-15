@@ -173,12 +173,14 @@ Display Maps for a single object
       - `icon` the icon file (optional)
       - `id` the id of the object (optional)
   - `data-map-cluster` a json string that represent the SuperCluster options (see https://github.com/mapbox/supercluster#options)
+  - `data-map-remote-markers` an url from which load markers in json format
 
 You can use the twig helpers:
   - {{ kw_map_data_center(-31.56391, 147.154312) }} or {{ kw_map_data_center(place) }}
   - {{ kw_map_data_zoom(3) }}
   - {{ kw_map_data_markers(places) }}
   - {{ kw_map_data_cluster({ maxZoom: 10, minPoints: 5 }) }}
+  - {{ kw_map_data_remote_markers(asset('path/to/file.json')) }}
 
 
 some examples:

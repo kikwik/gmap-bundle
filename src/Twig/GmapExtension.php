@@ -26,6 +26,7 @@ class GmapExtension extends AbstractExtension
             new TwigFunction('kw_map_data_zoom', [$this, 'getDataAttributeMapZoom'], ['is_safe'=>['html']]),
             new TwigFunction('kw_map_data_markers', [$this, 'getDataAttributeMapMarkers'], ['is_safe'=>['html']]),
             new TwigFunction('kw_map_data_cluster', [$this, 'getDataAttributeMapCluster'], ['is_safe'=>['html']]),
+            new TwigFunction('kw_map_data_remote_markers', [$this, 'getDataAttributeMapRemoteMarkers'], ['is_safe'=>['html']]),
         ];
     }
 
@@ -96,6 +97,11 @@ SCRIPT;
     public function getDataAttributeMapCluster(array $options = [])
     {
         return 'data-map-cluster="'.htmlspecialchars(json_encode($options)).'"';
+    }
+
+    public function getDataAttributeMapRemoteMarkers(string $url)
+    {
+        return 'data-map-remote-markers="'.$url.'"';
     }
 
 }
