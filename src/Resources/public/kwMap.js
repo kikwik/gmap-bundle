@@ -15,32 +15,7 @@ async function kwMap(mapElement, streetElement) {
     doMakeCluster();
 
     addSearchListener();
-
-
-
-    // TODO: check attribute: data-map-street-view
-    // if(streetPosition)
-    // {
-    //     // create the street view
-    //     const panorama = new google.maps.StreetViewPanorama(
-    //         streetElement,
-    //         {
-    //             position: streetPosition,
-    //         }
-    //     );
-    //
-    //     const { spherical } = await google.maps.importLibrary("geometry");
-    //     panorama.addListener('position_changed', function(){
-    //         let heading = spherical.computeHeading(panorama.getPosition(), streetMarker.getPosition());
-    //         panorama.setPov({heading: heading, pitch: 0})
-    //     })
-    //
-    //     map.setStreetView(panorama);
-    // }
-
-
-
-
+    addStreetView();
 
     return map;
 
@@ -171,6 +146,31 @@ async function kwMap(mapElement, streetElement) {
                     }
                 });
             })
+        }
+    }
+
+    async function addStreetView()
+    {
+        // check attribute: data-map-street-view and data-map-street-view-position
+        if(mapElement.dataset.mapStreetView && mapElement.dataset.mapStreetViewPosition)
+        {
+            let streetElement = document.querySelector(mapElement.dataset.mapStreetView);
+            let streetPosition = JSON.parse(mapElement.dataset.mapStreetViewPosition);
+            // create the street view
+            const panorama = new google.maps.StreetViewPanorama(
+                streetElement,
+                {
+                    position: streetPosition,
+                }
+            );
+
+            const { spherical } = await google.maps.importLibrary("geometry");
+            panorama.addListener('position_changed', function(){
+                let finalHeading = spherical.computeHeading(panorama.getPosition(), streetPosition);
+                panorama.setPov({heading: finalHeading, pitch: 0})
+            })
+
+            map.setStreetView(panorama);
         }
     }
 }

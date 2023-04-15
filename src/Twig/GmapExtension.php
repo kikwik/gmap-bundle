@@ -28,6 +28,7 @@ class GmapExtension extends AbstractExtension
             new TwigFunction('kw_map_data_cluster', [$this, 'getDataAttributeMapCluster'], ['is_safe'=>['html']]),
             new TwigFunction('kw_map_data_remote_markers', [$this, 'getDataAttributeMapRemoteMarkers'], ['is_safe'=>['html']]),
             new TwigFunction('kw_map_data_search_address', [$this, 'getDataAttributeMapSearchAddress'], ['is_safe'=>['html']]),
+            new TwigFunction('kw_map_data_street_view', [$this, 'getDataAttributeMapStreetView'], ['is_safe'=>['html']]),
         ];
     }
 
@@ -47,20 +48,20 @@ SCRIPT;
         return str_replace('YOUR_API_KEY_HERE',$this->gmapApiKeyJs,$this->_gmapInit).'<script src="bundles/kikwikgmap/kwMap.js"></script>';
     }
 
-    public function getDataAttributeMapCenter($param1, $param2 = null)
+    public function getDataAttributeMapCenter($objectOrLatitude, $longitude = null)
     {
-        if($param1 instanceof GeocodableEntityInterface)
+        if($objectOrLatitude instanceof GeocodableEntityInterface)
         {
             $data = [
-                'lat' => $param1->getLatitude(),
-                'lng' => $param1->getLongitude()
+                'lat' => $objectOrLatitude->getLatitude(),
+                'lng' => $objectOrLatitude->getLongitude()
             ];
         }
-        elseif(is_float($param1) && is_float($param2))
+        elseif(is_float($objectOrLatitude) && is_float($longitude))
         {
             $data = [
-                'lat' => $param1,
-                'lng' => $param2
+                'lat' => $objectOrLatitude,
+                'lng' => $longitude
             ];
         }
         else
@@ -109,4 +110,29 @@ SCRIPT;
     {
         return 'data-map-search-address="'.$addressSelector.'" data-map-search-submit="'.$submitSelector.'" data-map-search-zoom="'.$zoom.'"';
     }
+
+    public function getDataAttributeMapStreetView(string $selector, $objectOrLatitude, $longitude = null)
+    {
+        if($objectOrLatitude instanceof GeocodableEntityInterface)
+        {
+            $data = [
+                'lat' => $objectOrLatitude->getLatitude(),
+                'lng' => $objectOrLatitude->getLongitude()
+            ];
+        }
+        elseif(is_float($objectOrLatitude) && is_float($longitude))
+        {
+            $data = [
+                'lat' => $objectOrLatitude,
+                'lng' => $longitude
+            ];
+        }
+        else
+        {
+            throw new \TypeError('Arguments passed to Kikwik\GmapBundle\Twig\GmapExtension::getDataAttributeMapStreetView() must be one object that implement interface Kikwik\GmapBundle\Geocodable\GeocodableEntityInterface or two floats');
+        }
+
+        return 'data-map-street-view="'.$selector.'" data-map-street-view-position="'.htmlspecialchars(json_encode($data)).'"';
+    }
+
 }

@@ -170,6 +170,8 @@ Place a div on the page for every map, and use the twig helpers for:
   - activate cluster feature with `{{ kw_map_data_cluster({ maxZoom: 10, minPoints: 5 }) }}` (pass SuperCluster options, see https://github.com/mapbox/supercluster#options)
   - load remote markers with `{{ kw_map_data_remote_markers(asset('path/to/file.json')) }}`
   - bound a search form with `{{ kw_map_data_search_address('#map-address','#map-address-submit', 15) }}` (pass the css selector of the input text and submit button, the last parameter (zoom) is optional and defaults to 13)
+  - enable street view with `{{ kw_map_data_street_view('#street-view',place) }}` (pass the css selector of the container and a GeocodableEntityInterface object)
+  - enable street view with `{{ kw_map_data_street_view('#street-view',41.9027835, 12.4963655) }}` (pass the css selector of the container and a couple of float)
 
 Here all the data-attribute supported:
   - `data-map-center` a json string that represent a LatLngLiteral
@@ -185,6 +187,7 @@ Here all the data-attribute supported:
   - `data-map-search-address` the css selector of the input text used to center the map
   - `data-map-search-submit` the css selector of the submit button used to center the map
   - `data-map-search-zoom` the zoom level after a successful address search
+  - ``
 
 
 
@@ -224,14 +227,19 @@ Map with marker in all places (an array of GeocodableEntityInterface object):
     <div class="kw-map" {{ kw_map_data_markers(places) }}></div>
 </div>
 
-Map with marker in all places (an array of GeocodableEntityInterface object) centered in the first one with zoom=3:
+Map with zoom=3, marker in all places (an array of GeocodableEntityInterface object) centered in the first one, street view on the third one
 <div class="ratio ratio-1x1">
     <div class="kw-map"
             {{ kw_map_data_center(places[0]) }}
             {{ kw_map_data_zoom(3) }}
             {{ kw_map_data_markers(places) }}
             {{ kw_map_data_search_address('#map-address','#map-address-submit',20) }}
+            {{ kw_map_data_street_view('#street-view',places[2]) }}
     ></div>
+</div>
+
+<div class="ratio ratio-21x9">
+    <div id="street-view"></div>
 </div>
 ```
 
