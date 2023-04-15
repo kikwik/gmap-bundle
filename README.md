@@ -160,18 +160,38 @@ Use the `--failed` option to try to geocode again the failed ones
 $ php bin/console kikwik:gmap:geocode --limit=5 --failed
 ```
 
-Display Maps for a single object
---------------------------------
-Place a div on the page for every map, and use the twig helpers for:
+Display Maps
+------------
+
+
+Call the `kw_gmap_script` twig function inside the javascripts block to initialize the GMap library and call the `kwMap` function passing the DOM element
+
+```twig
+{% block javascripts %}
+    {{ parent() }}
+ 
+    {{ kw_gmap_script_tags() }}
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let mapElements = document.querySelectorAll('.kw-map');
+            mapElements.forEach(function (mapElement){
+                kwMap(mapElement);
+            })
+        });
+    </script>
+{% endblock %}
+```
+
+Then place a div on the page for each map, and use the twig helpers:
   - set map center with `{{ kw_map_data_center(-31.56391, 147.154312) }}` (pass a couple of float)
-  - set map center with `{{ kw_map_data_center(place) }}` (pass a GeocodableEntityInterface object)
+  - or set map center with `{{ kw_map_data_center(place) }}` (pass a GeocodableEntityInterface object)
   - set map zoom with `{{ kw_map_data_zoom(3) }}` (pass an integer)
   - load markers with `{{ kw_map_data_markers(places) }}` (pass an array of GeocodableEntityInterface objects)
   - activate cluster feature with `{{ kw_map_data_cluster({ maxZoom: 10, minPoints: 5 }) }}` (pass SuperCluster options, see https://github.com/mapbox/supercluster#options)
   - load remote markers with `{{ kw_map_data_remote_markers(asset('path/to/file.json')) }}`
   - bound a search form with `{{ kw_map_data_search_address('#map-address','#map-address-submit', 15) }}` (pass the css selector of the input text and submit button, the last parameter (zoom) is optional and defaults to 13)
   - enable street view with `{{ kw_map_data_street_view('#street-view',place) }}` (pass the css selector of the container and a GeocodableEntityInterface object)
-  - enable street view with `{{ kw_map_data_street_view('#street-view',41.9027835, 12.4963655) }}` (pass the css selector of the container and a couple of float)
+  - or enable street view with `{{ kw_map_data_street_view('#street-view',41.9027835, 12.4963655) }}` (pass the css selector of the container and a couple of float)
 
 Here all the data-attribute supported:
   - `data-map-center` a json string that represent a LatLngLiteral
@@ -187,7 +207,8 @@ Here all the data-attribute supported:
   - `data-map-search-address` the css selector of the input text used to center the map
   - `data-map-search-submit` the css selector of the submit button used to center the map
   - `data-map-search-zoom` the zoom level after a successful address search
-  - ``
+  - `data-map-street-view` the css selector of the element that will contain the street view 
+  - `data-map-street-view-position` a json string that represent a LatLngLiteral
 
 
 
@@ -244,21 +265,4 @@ Map with zoom=3, marker in all places (an array of GeocodableEntityInterface obj
 ```
 
 
-Finally call the `kw_gmap_script` twig function inside the javascripts block to initialize the GMap library and call the `kwMap` function passing the DOM element
-
-```twig
-{% block javascripts %}
-    {{ parent() }}
- 
-    {{ kw_gmap_script_tags() }}
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            let mapElements = document.querySelectorAll('.kw-map');
-            mapElements.forEach(function (mapElement){
-                kwMap(mapElement);
-            })
-        });
-    </script>
-{% endblock %}
-```
 
