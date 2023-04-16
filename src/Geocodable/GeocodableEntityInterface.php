@@ -79,19 +79,19 @@ interface GeocodableEntityInterface
      * Getters and Setters for address data
      */
     public function getStreet(): ?string;
-    public function setStreet(?string $street): self;
+    public function setStreet(?string $street);
     public function getStreetNumber(): ?string;
-    public function setStreetNumber(?string $streetNumber): self;
+    public function setStreetNumber(?string $streetNumber);
     public function getZipCode(): ?string;
-    public function setZipCode(?string $zipCode): self;
+    public function setZipCode(?string $zipCode);
     public function getCity(): ?string;
-    public function setCity(?string $city): self;
+    public function setCity(?string $city);
     public function getProvince(): ?string;
-    public function setProvince(?string $province): self;
+    public function setProvince(?string $province);
     public function getCountry(): ?string;
-    public function setCountry(?string $country): self;
+    public function setCountry(?string $country);
     public function getGeocodeQueryLocale(): string;
-    public function setGeocodeQueryLocale(string $geocodeQueryLocale): self;
+    public function setGeocodeQueryLocale(string $geocodeQueryLocale);
 
     /**
      * Getters and Setter for Gedmo Timestampable
