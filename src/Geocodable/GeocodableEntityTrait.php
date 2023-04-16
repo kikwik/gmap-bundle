@@ -361,7 +361,7 @@ trait GeocodableEntityTrait
 
         if($this->needGeocode())
         {
-            $result .= '<i class="fas fa-exclamation-triangle text-warning" data-toggle="tooltip" title="Outdated position"></i>&nbsp;';
+            $result .= '<i class="fas fa-exclamation-triangle text-warning" data-toggle="tooltip" title="Posizione da aggiornare"></i>&nbsp;';
         }
 
         switch($this->geocodeStatus)
