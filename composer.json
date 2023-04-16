@@ -3,6 +3,7 @@
     "description": "Google Map and Geocoder support for Symfony 5",
     "type": "symfony-bundle",
     "license": "MIT",
+    "minimum-stability": "stable",
     "authors": [
         {
             "name": "Davide Scarpato",
