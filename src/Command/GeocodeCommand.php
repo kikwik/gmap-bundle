@@ -100,8 +100,7 @@ class GeocodeCommand extends Command
                     $io->writeln('           '.$status);
                 }
             }
-
-            return Command::SUCCESS;
         }
+        return Command::SUCCESS;
     }
 }

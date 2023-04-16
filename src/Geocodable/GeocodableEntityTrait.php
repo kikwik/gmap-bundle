@@ -109,8 +109,7 @@ trait GeocodableEntityTrait
     public function needGeocode(): bool
     {
         return (!$this->isGeocoded() && !$this->geocodeStatus)
-            || $this->addressUpdatedAt > $this->geocodedAt
-            || $this->createGeocodeQueryString() != $this->geocodeQuery;
+            || $this->addressUpdatedAt > $this->geocodedAt;
     }
 
     public function doGeocode(Provider $provider): GeocodableEntityInterface
