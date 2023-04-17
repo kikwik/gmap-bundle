@@ -19,4 +19,32 @@ trait GeocodableRepositoryTrait
             ->andWhere($alias.'.geocodeStatus NOT IN (:geocodeStatuses)')
             ->setParameter('geocodeStatuses',[GeocodeStatus::OK,GeocodeStatus::ZERO_RESULTS]);
     }
+
+    public function getGeocodedQueryBuilder(string $alias): QueryBuilder
+    {
+        return $this->createQueryBuilder($alias)
+            ->andWhere($alias.'.geocodeStatus = :statusOk')
+            ->setParameter('statusOk',GeocodeStatus::OK);
+    }
+
+    /**
+     * @return GeocodableEntityInterface[]
+     */
+    public function findAllGeocoded()
+    {
+        return $this->getGeocodedQueryBuilder('g')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findAllGeocodedtoMapArray(): array
+    {
+        $objects = $this->findAllGeocoded();
+        $data = [];
+        foreach($objects as $object)
+        {
+            $data[] = $object->toMapArray();
+        }
+        return $data;
+    }
 }

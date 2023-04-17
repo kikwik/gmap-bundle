@@ -74,6 +74,7 @@ interface GeocodableEntityInterface
      */
     public function getInfoWindowContent(): ?string;
     public function getMarkerIcon(): ?string;
+    public function toMapArray(): array;
 
     /**
      * Getters and Setters for address data

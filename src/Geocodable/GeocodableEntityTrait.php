@@ -246,6 +246,16 @@ trait GeocodableEntityTrait
         return null;
     }
 
+    public function toMapArray(): array
+    {
+        return [
+            'lat' => $this->getLatitude(),
+            'lng' => $this->getLongitude(),
+            'info' => $this->getInfoWindowContent(),
+            'icon' => $this->getMarkerIcon()
+        ];
+    }
+
     /****************************************/
     /* GETTERS AND SETTERS FOR ADDRESS DATA */
     /****************************************/

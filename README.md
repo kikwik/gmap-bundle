@@ -201,7 +201,6 @@ Here all the data-attribute supported:
     - `lng` longitude value (float)
     - `info` the google.maps.InfoWindow content (optional)
     - `icon` the icon file (optional)
-    - `id` the id of the object (optional)
   - `data-map-cluster` a json string that represent the SuperCluster options (see https://github.com/mapbox/supercluster#options)
   - `data-map-remote-markers` an url from which load markers in json format
   - `data-map-search-address` the css selector of the input text used to center the map

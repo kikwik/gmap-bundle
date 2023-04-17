@@ -45,7 +45,8 @@ SCRIPT;
 
     public function getGmapScriptTags()
     {
-        return str_replace('YOUR_API_KEY_HERE',$this->gmapApiKeyJs,$this->_gmapInit).'<script src="/bundles/kikwikgmap/kwMap.js"></script>';
+        $scriptVersion = filemtime(__DIR__.'/../Resources/public/kwMap.js');
+        return str_replace('YOUR_API_KEY_HERE',$this->gmapApiKeyJs,$this->_gmapInit).'<script src="/bundles/kikwikgmap/kwMap.js?v='.$scriptVersion.'"></script>';
     }
 
     public function getDataAttributeMapCenter($objectOrLatitude, $longitude = null)
