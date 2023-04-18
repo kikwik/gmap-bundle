@@ -1,8 +1,9 @@
 async function kwMap(mapElement, streetElement) {
     const { Map } = await google.maps.importLibrary("maps");
 
-    let markers = [];
-    let mapBounds = new google.maps.LatLngBounds();
+    const markers = [];
+    const mapBounds = new google.maps.LatLngBounds();
+    const infoWindow = new google.maps.InfoWindow();
 
     // create the map
     const map = new Map(mapElement, {
@@ -32,10 +33,10 @@ async function kwMap(mapElement, streetElement) {
         }
         if(jsonMarker.info)
         {
-            // add infowindow
-            const infowindow = new google.maps.InfoWindow({content: jsonMarker.info});
+            // open infowindow
             marker.addListener("click", () => {
-                infowindow.open({
+                infoWindow.setContent(jsonMarker.info);
+                infoWindow.open({
                     anchor: marker,
                     map,
                 });
@@ -131,12 +132,12 @@ async function kwMap(mapElement, streetElement) {
         // check attribute: data-map-search-address, data-map-search-submit and data-map-search-zoom
         if(mapElement.dataset.mapSearchAddress && mapElement.dataset.mapSearchSubmit && mapElement.dataset.mapSearchZoom)
         {
-            let geocoder = new google.maps.Geocoder();
-            let submit = document.querySelector(mapElement.dataset.mapSearchSubmit);
-            submit.addEventListener('click',function (e){
+            const geocoder = new google.maps.Geocoder();
+            const submitBtn = document.querySelector(mapElement.dataset.mapSearchSubmit);
+            submitBtn.addEventListener('click',function (e){
                 e.preventDefault();
-                let text = document.querySelector(mapElement.dataset.mapSearchAddress);
-                geocoder.geocode( { 'address': text.value}, function(results, status) {
+                const textInput = document.querySelector(mapElement.dataset.mapSearchAddress);
+                geocoder.geocode( { 'address': textInput.value}, function(results, status) {
                     if (status == 'OK') {
                         map.setCenter(results[0].geometry.location);
                         map.setZoom(parseInt(mapElement.dataset.mapSearchZoom));
@@ -154,8 +155,8 @@ async function kwMap(mapElement, streetElement) {
         // check attribute: data-map-street-view and data-map-street-view-position
         if(mapElement.dataset.mapStreetView && mapElement.dataset.mapStreetViewPosition)
         {
-            let streetElement = document.querySelector(mapElement.dataset.mapStreetView);
-            let streetPosition = JSON.parse(mapElement.dataset.mapStreetViewPosition);
+            const streetElement = document.querySelector(mapElement.dataset.mapStreetView);
+            const streetPosition = JSON.parse(mapElement.dataset.mapStreetViewPosition);
             // create the street view
             const panorama = new google.maps.StreetViewPanorama(
                 streetElement,
@@ -166,7 +167,7 @@ async function kwMap(mapElement, streetElement) {
 
             const { spherical } = await google.maps.importLibrary("geometry");
             panorama.addListener('position_changed', function(){
-                let finalHeading = spherical.computeHeading(panorama.getPosition(), streetPosition);
+                const finalHeading = spherical.computeHeading(panorama.getPosition(), streetPosition);
                 panorama.setPov({heading: finalHeading, pitch: 0})
             })
 
