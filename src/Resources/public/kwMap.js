@@ -1,162 +1,49 @@
-async function kwMap(mapElement, streetElement) {
-    const { Map } = await google.maps.importLibrary("maps");
+class kwMap
+{
 
-    const markers = [];
-    const mapBounds = new google.maps.LatLngBounds();
-    const infoWindow = new google.maps.InfoWindow();
+    async init(mapElement) {
+        const { Map } = await google.maps.importLibrary("maps");
 
-    // create the map
-    const map = new Map(mapElement, {
-        center: { lat: 41.9027835, lng: 12.4963655},    // center of Italy by default
-        zoom: 4,                                        // about a country by default
-    });
+        this.mapElement = mapElement;
+        this.markers = [];
+        this.mapBounds = new google.maps.LatLngBounds();
+        this.infoWindow = new google.maps.InfoWindow();
+        this.markerCluster = null;
 
-    doLoadMarkers();
-    doCenterMap();
-    doMakeCluster();
-
-    addSearchListener();
-    addStreetView();
-
-    return map;
-
-
-    function addMarker(jsonMarker)
-    {
-        const marker = new google.maps.Marker({
-            position: { lat: parseFloat(jsonMarker.lat), lng: parseFloat(jsonMarker.lng) },
-            map: map,
+        // create the map
+        this.map = new Map(mapElement, {
+            center: { lat: 41.9027835, lng: 12.4963655},    // center of Italy by default
+            zoom: 4,                                        // about a country by default
         });
-        if(jsonMarker.icon)
-        {
-            marker.setIcon(jsonMarker.icon)
-        }
-        if(jsonMarker.info)
-        {
-            // open infowindow
-            marker.addListener("click", () => {
-                infoWindow.setContent(jsonMarker.info);
-                infoWindow.open({
-                    anchor: marker,
-                    map,
-                });
-            });
-        }
 
-        markers.push(marker);
-        mapBounds.extend(new google.maps.LatLng(parseFloat(jsonMarker.lat), parseFloat(jsonMarker.lng)));
-    }
+        this.loadMarkers();
+        this.resetView();
+        this.makeCluster();
 
-    function doCenterMap()
-    {
-        // check attribute: data-map-center
-        if(mapElement.dataset.mapCenter)
-        {
-            map.setCenter(JSON.parse(mapElement.dataset.mapCenter));
-        }
-
-        // check attribute: data-map-zoom
-        if(mapElement.dataset.mapZoom)
-        {
-            map.setZoom(parseInt(mapElement.dataset.mapZoom));
-        }
-
-        if(markers.length == 1)  // one marker
-        {
-            if(!mapElement.dataset.mapCenter) {
-                map.setCenter(markers[0].getPosition());
-            }
-            if(!mapElement.dataset.mapZoom) {
-                map.setZoom(15);
-            }
-        }
-        else if(markers.length > 1) // multiple markers
-        {
-            if(!mapElement.dataset.mapCenter && !mapElement.dataset.mapZoom)
-            {
-                map.fitBounds(mapBounds);
-            }
-        }
-    }
-
-    function doLoadMarkers()
-    {
-        // check attribute: data-map-markers
-        if(mapElement.dataset.mapMarkers)
-        {
-            jsonData = JSON.parse(mapElement.dataset.mapMarkers);
-            for(jsonDatum of jsonData)
-            {
-                addMarker(jsonDatum);
-            }
-        }
-
-        // check attribute: data-map-remote-markers
-        if(mapElement.dataset.mapRemoteMarkers)
-        {
-            // load markers
-            fetch(mapElement.dataset.mapRemoteMarkers)
-                .then(function (response){
-                    return response.json();
-                })
-                .then(function (jsonData){
-                    for(jsonDatum of jsonData)
-                    {
-                        addMarker(jsonDatum);
-                    }
-                    doCenterMap();
-                    doMakeCluster();
-                })
-                .catch(function (error){
-                    console.log('Error loading '+mapElement.dataset.mapRemoteMarkers+': '+error);
-                })
-        }
-    }
-
-    function doMakeCluster()
-    {
-        if(markers.length > 1) // multiple markers
-        {
-            // check attribute: data-map-cluster
-            if(mapElement.dataset.mapCluster)
-            {
-                const options = JSON.parse(mapElement.dataset.mapCluster);
-                const algorithm = new markerClusterer.SuperClusterAlgorithm(options);
-                new markerClusterer.MarkerClusterer({ algorithm, map, markers });
-            }
-        }
-    }
-
-    function addSearchListener()
-    {
         // check attribute: data-map-search-address, data-map-search-submit and data-map-search-zoom
-        if(mapElement.dataset.mapSearchAddress && mapElement.dataset.mapSearchSubmit && mapElement.dataset.mapSearchZoom)
+        if(this.mapElement.dataset.mapSearchAddress && this.mapElement.dataset.mapSearchSubmit && this.mapElement.dataset.mapSearchZoom)
         {
             const geocoder = new google.maps.Geocoder();
-            const submitBtn = document.querySelector(mapElement.dataset.mapSearchSubmit);
-            submitBtn.addEventListener('click',function (e){
+            const submitBtn = document.querySelector(this.mapElement.dataset.mapSearchSubmit);
+            submitBtn.addEventListener('click',(e) => {
                 e.preventDefault();
-                const textInput = document.querySelector(mapElement.dataset.mapSearchAddress);
-                geocoder.geocode( { 'address': textInput.value}, function(results, status) {
+                const textInput = document.querySelector(this.mapElement.dataset.mapSearchAddress);
+                geocoder.geocode( { 'address': textInput.value}, (results, status) => {
                     if (status == 'OK') {
-                        map.setCenter(results[0].geometry.location);
-                        map.setZoom(parseInt(mapElement.dataset.mapSearchZoom));
+                        this.map.setCenter(results[0].geometry.location);
+                        this.map.setZoom(parseInt(this.mapElement.dataset.mapSearchZoom));
                     } else {
-                        doCenterMap();
-                        // alert(text.value+' ' + status);
+                        this.resetView();
                     }
                 });
             })
         }
-    }
 
-    async function addStreetView()
-    {
         // check attribute: data-map-street-view and data-map-street-view-position
-        if(mapElement.dataset.mapStreetView && mapElement.dataset.mapStreetViewPosition)
+        if(this.mapElement.dataset.mapStreetView && this.mapElement.dataset.mapStreetViewPosition)
         {
-            const streetElement = document.querySelector(mapElement.dataset.mapStreetView);
-            const streetPosition = JSON.parse(mapElement.dataset.mapStreetViewPosition);
+            const streetElement = document.querySelector(this.mapElement.dataset.mapStreetView);
+            const streetPosition = JSON.parse(this.mapElement.dataset.mapStreetViewPosition);
             // create the street view
             const panorama = new google.maps.StreetViewPanorama(
                 streetElement,
@@ -171,7 +58,153 @@ async function kwMap(mapElement, streetElement) {
                 panorama.setPov({heading: finalHeading, pitch: 0})
             })
 
-            map.setStreetView(panorama);
+            this.map.setStreetView(panorama);
+        }
+    }
+
+    getGMap() {
+        return this.map;
+    }
+
+    getMarkers() {
+        return this.markers;
+    }
+
+    getVisibleMarkers() {
+        let visibleMarkers = [];
+        if(this.markers.length > 0 && this.map.getBounds())
+        {
+            const bounds = this.map.getBounds()
+            this.markers.forEach(m => {
+                if (bounds.contains(m.getPosition())) {
+                    visibleMarkers.push(m)
+                }
+            });
+        }
+        return visibleMarkers;
+    }
+
+    clearMarkers() {
+        while(this.markers.length)
+        {
+            let marker = this.markers.pop();
+            marker.setMap(null);
+        }
+        if(this.markerCluster)
+        {
+            this.markerCluster.clearMarkers();
+        }
+    }
+
+    loadMarkers() {
+        // check attribute: data-map-markers
+        if(this.mapElement.dataset.mapMarkers)
+        {
+            const jsonData = JSON.parse(this.mapElement.dataset.mapMarkers);
+            for(let jsonDatum of jsonData)
+            {
+                this.addMarker(jsonDatum);
+            }
+        }
+
+        // check attribute: data-map-remote-markers
+        if(this.mapElement.dataset.mapRemoteMarkers)
+        {
+            // load markers
+            fetch(this.mapElement.dataset.mapRemoteMarkers)
+                .then((response) => {
+                    return response.json();
+                })
+                .then((jsonData) => {
+                    for(let jsonDatum of jsonData)
+                    {
+                        this.addMarker(jsonDatum);
+                    }
+                    this.resetView();
+                    this.makeCluster();
+                })
+                .catch((error) => {
+                    console.log('Error loading '+mapElement.dataset.mapRemoteMarkers+': '+error);
+                })
+        }
+    }
+
+    makeCluster() {
+        if(this.markers.length > 1) // multiple markers
+        {
+            // check attribute: data-map-cluster
+            if(this.mapElement.dataset.mapCluster)
+            {
+                const options = JSON.parse(this.mapElement.dataset.mapCluster);
+                const algorithm = new markerClusterer.SuperClusterAlgorithm(options);
+                this.markerCluster = new markerClusterer.MarkerClusterer({
+                    algorithm,
+                    map: this.map,
+                    markers: this.markers
+                });
+            }
+        }
+    }
+
+    addMarker(jsonMarker) {
+        const marker = new google.maps.Marker({
+            position: { lat: parseFloat(jsonMarker.lat), lng: parseFloat(jsonMarker.lng) },
+            map: this.map,
+        });
+        if(jsonMarker.icon)
+        {
+            marker.setIcon(jsonMarker.icon)
+        }
+        if(jsonMarker.info)
+        {
+            marker.info = jsonMarker.info;
+            // open infowindow
+            marker.addListener("click", () => {
+                this.infoWindow.setContent(jsonMarker.info);
+                this.infoWindow.open({
+                    anchor: marker,
+                    map: this.map,
+                });
+            });
+        }
+        if(jsonMarker.id)
+        {
+            marker.id = jsonMarker.id;
+        }
+
+        this.markers.push(marker);
+        this.mapBounds.extend(new google.maps.LatLng(parseFloat(jsonMarker.lat), parseFloat(jsonMarker.lng)));
+    }
+
+    resetView() {
+        // check attribute: data-map-center
+        if(this.mapElement.dataset.mapCenter)
+        {
+            this.map.setCenter(JSON.parse(this.mapElement.dataset.mapCenter));
+        }
+
+        // check attribute: data-map-zoom
+        if(this.mapElement.dataset.mapZoom)
+        {
+            this.map.setZoom(parseInt(this.mapElement.dataset.mapZoom));
+        }
+
+        if(this.markers.length == 1)  // one marker
+        {
+            if(!this.mapElement.dataset.mapCenter) {
+                this.map.setCenter(this.markers[0].getPosition());
+            }
+            if(!this.mapElement.dataset.mapZoom) {
+                this.map.setZoom(15);
+            }
+        }
+        else if(this.markers.length > 1) // multiple markers
+        {
+            if(!this.mapElement.dataset.mapCenter && !this.mapElement.dataset.mapZoom)
+            {
+                this.map.fitBounds(this.mapBounds);
+            }
         }
     }
 }
+

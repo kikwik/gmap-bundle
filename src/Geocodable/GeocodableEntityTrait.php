@@ -252,7 +252,8 @@ trait GeocodableEntityTrait
             'lat' => $this->getLatitude(),
             'lng' => $this->getLongitude(),
             'info' => $this->getInfoWindowContent(),
-            'icon' => $this->getMarkerIcon()
+            'icon' => $this->getMarkerIcon(),
+            'id'=> $this->getId(),
         ];
     }
 

@@ -164,7 +164,9 @@ Display Maps
 ------------
 
 
-Call the `kw_gmap_script` twig function inside the javascripts block to initialize the GMap library and call the `kwMap` function passing the DOM element
+- Call the `kw_gmap_script` twig function inside the javascripts block to initialize the GMap library, 
+- then create a new `kwMap` object 
+- and call its `init` function that return a promise that is resolved when the map is loaded
 
 ```twig
 {% block javascripts %}
@@ -175,7 +177,14 @@ Call the `kw_gmap_script` twig function inside the javascripts block to initiali
         document.addEventListener("DOMContentLoaded", function() {
             let mapElements = document.querySelectorAll('.kw-map');
             mapElements.forEach(function (mapElement){
-                kwMap(mapElement);
+                const map = new kwMap();
+                map.init(mapElement)
+                    .then(function (){
+                        // now map is loaded
+                        map.getGMap().addListener('bounds_changed', function() {
+                           console.log(map.getVisibleMarkers().length);
+                       });
+                    });
             })
         });
     </script>
@@ -201,6 +210,7 @@ Here all the data-attribute supported:
     - `lng` longitude value (float)
     - `info` the google.maps.InfoWindow content (optional)
     - `icon` the icon file (optional)
+    - `identifier` a sting that identify the marker (optional)
   - `data-map-cluster` a json string that represent the SuperCluster options (see https://github.com/mapbox/supercluster#options)
   - `data-map-remote-markers` an url from which load markers in json format
   - `data-map-search-address` the css selector of the input text used to center the map
