@@ -4,6 +4,7 @@ namespace Kikwik\GmapBundle\Form\Type;
 
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
@@ -38,7 +39,7 @@ class AddressAutocompleteType extends AbstractType
 
         foreach($options['autocomplete_fields'] as $autocompleteFieldName)
         {
-            $builder->add($autocompleteFieldName,TextType::class,[
+            $builder->add($autocompleteFieldName,HiddenType::class,[
                 'attr' => [
                     'class'=> 'js-'.$autocompleteFieldName,
                 ]
