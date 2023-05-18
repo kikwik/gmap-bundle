@@ -45,8 +45,13 @@ SCRIPT;
 
     public function getGmapScriptTags()
     {
-        $scriptVersion = filemtime(__DIR__.'/../Resources/public/kwMap.js');
-        return str_replace('YOUR_API_KEY_HERE',$this->gmapApiKeyJs,$this->_gmapInit).'<script src="/bundles/kikwikgmap/kwMap.js?v='.$scriptVersion.'"></script>';
+        $kwMapVersion = filemtime(__DIR__.'/../Resources/public/kwMap.js');
+        $kwAutocompleteVersion = filemtime(__DIR__.'/../Resources/public/kwAutocomplete.js');
+
+        return str_replace('YOUR_API_KEY_HERE',$this->gmapApiKeyJs,$this->_gmapInit)
+            .'<script src="/bundles/kikwikgmap/kwMap.js?v='.$kwMapVersion.'"></script>'
+            .'<script src="/bundles/kikwikgmap/kwAutocomplete.js?v='.$kwAutocompleteVersion.'"></script>'
+            ;
     }
 
     public function getDataAttributeMapCenter($objectOrLatitude, $longitude = null)

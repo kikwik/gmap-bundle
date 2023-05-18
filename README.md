@@ -274,4 +274,61 @@ Map with zoom=3, marker in all places (an array of GeocodableEntityInterface obj
 ```
 
 
+Address Autocomplete
+--------------------
 
+Use the `AddressAutocompleteType` in your forms to geocode adresses in separate components
+
+```php
+use Kikwik\GmapBundle\Form\Type\AddressAutocompleteType;
+
+class GmapController extends AbstractController
+{
+    /**
+     * @Route("/gmap/autocomplete", name="app_gmap_autocomplete")
+     */
+    public function addressAutocomplete(Request $request)
+    {
+        $submittedData = null;
+        $form = $this->createFormBuilder()
+            ->add('indirizzo1',AddressAutocompleteType::class, [
+            ])
+            ->add('indirizzo2',AddressAutocompleteType::class, [
+                'autocomplete_fields' => ['latitude','longitude']
+            ])
+            ->getForm();
+        $form->handleRequest($request);
+        if($form->isSubmitted() && $form->isValid())
+        {
+            $submittedData = $form->getData();
+            dump($submittedData['indirizzo1']['autocomplete']);
+            dump($submittedData['indirizzo1']['street']);
+            dump($submittedData['indirizzo1']['streetNumber']);
+            dump($submittedData['indirizzo1']['zipCode']);
+            dump($submittedData['indirizzo1']['city']);
+            dump($submittedData['indirizzo1']['province']);
+            dump($submittedData['indirizzo1']['region']);
+            dump($submittedData['indirizzo1']['country']);
+            dump($submittedData['indirizzo1']['latitude']);
+            dump($submittedData['indirizzo1']['longitude']);
+        }
+
+
+        return $this->render('gmap/addressAutocomplete.html.twig',[
+            'form'=>$form->createView(),
+            'submittedData' => $submittedData,
+        ]);
+    }
+}
+```
+
+remember to load gmap scripts in your template:
+
+```twig
+{% block javascripts %}
+    {{ parent() }}
+ 
+    {{ kw_gmap_script_tags() }}
+    
+{% endblock %}
+```
