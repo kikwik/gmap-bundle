@@ -32,6 +32,7 @@ class AddressAutocompleteType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('autocomplete',TextType::class, [
+            'label'=>false,
             'attr' => [
                 'class'=> 'js-autocomplete',
             ]
