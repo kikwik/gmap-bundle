@@ -41,34 +41,36 @@ class kwAutocomplete
                     const componentType = component.types[0];
                     switch (componentType)
                     {
-                        case "route": {
+                        case "route":
                             if(this.inputs.street) this.inputs.street.value = component.short_name;
                             break;
-                        }
-                        case "street_number": {
+                        case "street_number":
                             if(this.inputs.streetNumber) this.inputs.streetNumber.value = component.long_name;
                             break;
-                        }
-                        case "postal_code": {
+                        case "postal_code":
                             if(this.inputs.zipCode) this.inputs.zipCode.value = component.long_name;
                             break;
-                        }
                         case "locality":
-                            if(this.inputs.city) this.inputs.city.value = component.long_name;
+                        case "administrative_area_level_3":
+                            if(this.inputs.city) {
+                                if(component.long_name)
+                                {
+                                    this.inputs.city.value = component.long_name;
+                                }
+                            }
                             break;
-                        case "administrative_area_level_2": {
+                        case "administrative_area_level_2":
                             if(this.inputs.province) this.inputs.province.value = component.short_name;
                             break;
-                        }
-                        case "administrative_area_level_1": {
+                        case "administrative_area_level_1":
                             if(this.inputs.region) this.inputs.region.value = component.long_name;
                             break;
-                        }
                         case "country":
                             if(this.inputs.country) this.inputs.country.value = component.long_name;
                             break;
                     }
                 }
+                //console.log(place.address_components);
             }
 
             if(place.geometry && place.geometry.location)
