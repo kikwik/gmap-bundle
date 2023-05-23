@@ -15,7 +15,7 @@ class AddressAutocompleteType extends AbstractType
 {
     public function configureOptions(OptionsResolver $resolver)
     {
-        $allowedAutocompleteFields = ['street','streetNumber','zipCode','city','province','region','country','latitude','longitude'];
+        $allowedAutocompleteFields = ['street','streetNumber','zipCode','locality','city','province','region','country','latitude','longitude'];
 
         $resolver->setDefault('autocomplete_fields', $allowedAutocompleteFields);
         $resolver->setAllowedTypes('autocomplete_fields', ['array']);

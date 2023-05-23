@@ -305,6 +305,7 @@ class GmapController extends AbstractController
             dump($submittedData['indirizzo1']['street']);
             dump($submittedData['indirizzo1']['streetNumber']);
             dump($submittedData['indirizzo1']['zipCode']);
+            dump($submittedData['indirizzo1']['locality']);
             dump($submittedData['indirizzo1']['city']);
             dump($submittedData['indirizzo1']['province']);
             dump($submittedData['indirizzo1']['region']);

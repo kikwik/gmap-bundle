@@ -16,6 +16,7 @@ class kwAutocomplete
             street:         autocompleteForm.querySelector('.js-street'),
             streetNumber:   autocompleteForm.querySelector('.js-streetNumber'),
             zipCode:        autocompleteForm.querySelector('.js-zipCode'),
+            locality:       autocompleteForm.querySelector('.js-locality'),
             city:           autocompleteForm.querySelector('.js-city'),
             province:       autocompleteForm.querySelector('.js-province'),
             region:         autocompleteForm.querySelector('.js-region'),
@@ -34,6 +35,17 @@ class kwAutocomplete
         this.autocomplete.addListener("place_changed", () => {
             const place = this.autocomplete.getPlace();
 
+            this.inputs.street.value = '';
+            this.inputs.streetNumber.value = '';
+            this.inputs.zipCode.value = '';
+            this.inputs.locality.value = '';
+            this.inputs.city.value = '';
+            this.inputs.province.value = '';
+            this.inputs.region.value = '';
+            this.inputs.country.value = '';
+            this.inputs.latitude.value = '';
+            this.inputs.longitude.value = '';
+
             if(place.address_components)
             {
                 for (const component of place.address_components)
@@ -51,13 +63,10 @@ class kwAutocomplete
                             if(this.inputs.zipCode) this.inputs.zipCode.value = component.long_name;
                             break;
                         case "locality":
+                            if(this.inputs.locality) this.inputs.locality.value = component.long_name;
+                            break;
                         case "administrative_area_level_3":
-                            if(this.inputs.city) {
-                                if(component.long_name)
-                                {
-                                    this.inputs.city.value = component.long_name;
-                                }
-                            }
+                            if(this.inputs.city) this.inputs.city.value = component.long_name;
                             break;
                         case "administrative_area_level_2":
                             if(this.inputs.province) this.inputs.province.value = component.short_name;
