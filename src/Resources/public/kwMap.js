@@ -90,6 +90,7 @@ class kwMap
             let marker = this.markers.pop();
             marker.setMap(null);
         }
+        this.mapBounds = new google.maps.LatLngBounds();
         if(this.markerCluster)
         {
             this.markerCluster.clearMarkers();
