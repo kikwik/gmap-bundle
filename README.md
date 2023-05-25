@@ -182,7 +182,34 @@ Display Maps
                     .then(function (){
                         // now map is loaded
                         map.getGMap().addListener('bounds_changed', function() {
-                           console.log(map.getVisibleMarkers().length);
+                            const searchText = document.getElementById('map-search-txt');
+                            const searchResults = document.getElementById('search-results');
+                            const searchResultList = searchResults.querySelector('.js-location-list');
+                            const searchResultCount = searchResults.querySelector('.js-location-count');
+                            if(searchText.value)
+                            {
+                                // get visible markers
+                                let visibleMarkers = map.getVisibleMarkers();
+                                // update counter
+                                searchResultCount.textContent = '('+visibleMarkers.length+')';
+                                // empty result list
+                                searchResultList.innerHTML = '';
+                                // add results to list
+                                for(let visibleMarker of visibleMarkers)
+                                {
+                                    let node = document.createElement('li');
+                                    node.id = 'result-'+visibleMarker.id;
+                                    node.innerHTML = visibleMarker.info;
+                                    searchResultList.appendChild(node);
+                                }
+                                // show results
+                                searchResults.classList.remove('d-none');
+                            }
+                            else
+                            {
+                                // hide results
+                                searchResults.classList.add('d-none');
+                            } 
                        });
                     });
             })
