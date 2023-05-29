@@ -112,9 +112,9 @@ SCRIPT;
         return 'data-map-remote-markers="'.$url.'"';
     }
 
-    public function getDataAttributeMapSearchAddress(string $addressSelector, string $submitSelector, int $zoom = 13)
+    public function getDataAttributeMapSearchAddress(string $addressSelector, string $submitSelector)
     {
-        return 'data-map-search-address="'.$addressSelector.'" data-map-search-submit="'.$submitSelector.'" data-map-search-zoom="'.$zoom.'"';
+        return 'data-map-search-address="'.$addressSelector.'" data-map-search-submit="'.$submitSelector.'"';
     }
 
     public function getDataAttributeMapStreetView(string $selector, $objectOrLatitude, $longitude = null)

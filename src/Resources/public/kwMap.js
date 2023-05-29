@@ -9,6 +9,8 @@ class kwMap
         this.mapBounds = new google.maps.LatLngBounds();
         this.infoWindow = new google.maps.InfoWindow();
         this.markerCluster = null;
+        this.mapSearchSubmit = null;
+        this.messageBox = null;
 
         // create the map
         this.map = new Map(mapElement, {
@@ -20,18 +22,18 @@ class kwMap
         this.resetView();
         this.makeCluster();
 
-        // check attribute: data-map-search-address, data-map-search-submit and data-map-search-zoom
-        if(this.mapElement.dataset.mapSearchAddress && this.mapElement.dataset.mapSearchSubmit && this.mapElement.dataset.mapSearchZoom)
+        // check attribute: data-map-search-address, data-map-search-submit
+        if(this.mapElement.dataset.mapSearchAddress && this.mapElement.dataset.mapSearchSubmit)
         {
             const geocoder = new google.maps.Geocoder();
-            const submitBtn = document.querySelector(this.mapElement.dataset.mapSearchSubmit);
-            submitBtn.addEventListener('click',(e) => {
+            this.mapSearchSubmit = document.querySelector(this.mapElement.dataset.mapSearchSubmit);
+            this.mapSearchSubmit.addEventListener('click',(e) => {
                 e.preventDefault();
                 const textInput = document.querySelector(this.mapElement.dataset.mapSearchAddress);
                 geocoder.geocode( { 'address': textInput.value}, (results, status) => {
                     if (status == 'OK') {
                         this.map.setCenter(results[0].geometry.location);
-                        this.map.setZoom(parseInt(this.mapElement.dataset.mapSearchZoom));
+                        this.map.fitBounds(results[0].geometry.bounds);
                     } else {
                         this.resetView();
                     }
@@ -101,6 +103,7 @@ class kwMap
         // check attribute: data-map-markers
         if(this.mapElement.dataset.mapMarkers)
         {
+            // load markers from data-attribute
             const jsonData = JSON.parse(this.mapElement.dataset.mapMarkers);
             for(let jsonDatum of jsonData)
             {
@@ -111,21 +114,28 @@ class kwMap
         // check attribute: data-map-remote-markers
         if(this.mapElement.dataset.mapRemoteMarkers)
         {
-            // load markers
+            this.showMessage('Caricamento...');
+            // load json file from remote url
             fetch(this.mapElement.dataset.mapRemoteMarkers)
                 .then((response) => {
                     return response.json();
                 })
                 .then((jsonData) => {
+                    // load markers
                     for(let jsonDatum of jsonData)
                     {
                         this.addMarker(jsonDatum);
                     }
-                    this.resetView();
+                    // reset zoom and bounds
+                    if(this.mapSearchSubmit) {this.mapSearchSubmit.click();}
+                                        else {this.resetView();}
+                    // reset cluster
                     this.makeCluster();
+                    this.hideMessage();
                 })
                 .catch((error) => {
-                    console.log('Error loading '+mapElement.dataset.mapRemoteMarkers+': '+error);
+                    this.showMessage('Error loading '+this.mapElement.dataset.mapRemoteMarkers+': '+error);
+                    console.log('Error loading '+this.mapElement.dataset.mapRemoteMarkers+': '+error);
                 })
         }
     }
@@ -206,6 +216,24 @@ class kwMap
                 this.map.fitBounds(this.mapBounds);
             }
         }
+    }
+
+    showMessage(messageTxt) {
+        if(!this.messageBox)
+        {
+            this.messageBox = document.createElement('button');
+            this.messageBox.style.display = 'none';
+            this.messageBox.style.margin = "10px";
+            this.messageBox.padding = "10px";
+            this.messageBox.classList.add("custom-map-control-button");
+            this.map.controls[google.maps.ControlPosition.TOP_CENTER].push(this.messageBox);
+        }
+        this.messageBox.textContent = messageTxt;
+        this.messageBox.style.display = 'block';
+    }
+
+    hideMessage() {
+        this.messageBox.style.display = 'none';
     }
 }
 

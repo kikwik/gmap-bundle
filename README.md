@@ -177,42 +177,53 @@ Display Maps
         document.addEventListener("DOMContentLoaded", function() {
             let mapElements = document.querySelectorAll('.kw-map');
             mapElements.forEach(function (mapElement){
-                const map = new kwMap();
+                let map = new kwMap();
                 map.init(mapElement)
-                    .then(function (){
-                        // now map is loaded
-                        map.getGMap().addListener('bounds_changed', function() {
-                            const searchText = document.getElementById('map-search-txt');
-                            const searchResults = document.getElementById('search-results');
-                            const searchResultList = searchResults.querySelector('.js-location-list');
-                            const searchResultCount = searchResults.querySelector('.js-location-count');
-                            if(searchText.value)
-                            {
-                                // get visible markers
-                                let visibleMarkers = map.getVisibleMarkers();
-                                // update counter
-                                searchResultCount.textContent = '('+visibleMarkers.length+')';
-                                // empty result list
-                                searchResultList.innerHTML = '';
-                                // add results to list
-                                for(let visibleMarker of visibleMarkers)
+                        .then(function (){
+
+                            map.getGMap().addListener('bounds_changed', function() {
+                                const searchText = document.getElementById('map-search-txt');
+                                const searchResults = document.getElementById('search-results');
+                                const searchResultList = searchResults.querySelector('.js-location-list');
+                                const searchResultCount = searchResults.querySelector('.js-location-count');
+                                if(searchText.value)
                                 {
-                                    let node = document.createElement('li');
-                                    node.id = 'result-'+visibleMarker.id;
-                                    node.innerHTML = visibleMarker.info;
-                                    searchResultList.appendChild(node);
+                                    // get visible markers
+                                    let visibleMarkers = map.getVisibleMarkers();
+                                    // update counter
+                                    searchResultCount.textContent = '('+visibleMarkers.length+')';
+                                    // empty result list
+                                    searchResultList.innerHTML = '';
+                                    // add results to list
+                                    for(let visibleMarker of visibleMarkers)
+                                    {
+                                        let node = document.createElement('li');
+                                        node.id = 'result-'+visibleMarker.id;
+                                        node.innerHTML = visibleMarker.info;
+                                        searchResultList.appendChild(node);
+                                    }
+                                    // show results
+                                    searchResults.classList.remove('d-none');
                                 }
-                                // show results
-                                searchResults.classList.remove('d-none');
-                            }
-                            else
-                            {
-                                // hide results
-                                searchResults.classList.add('d-none');
-                            } 
-                       });
-                    });
-            })
+                                else
+                                {
+                                    // hide results
+                                    searchResults.classList.add('d-none');
+                                }
+                            });
+
+
+                            const mapSourceRadios = document.querySelectorAll('.js-map-source');
+                            mapSourceRadios.forEach(function (mapSourceRadio){
+                                mapSourceRadio.addEventListener('click', function() {
+                                    map.clearMarkers();
+                                    let url = this.value;
+                                    mapElement.dataset.mapRemoteMarkers = url;
+                                    map.loadMarkers();
+                                })
+                            })
+                        })
+            });
         });
     </script>
 {% endblock %}
@@ -225,7 +236,7 @@ Then place a div on the page for each map, and use the twig helpers:
   - load markers with `{{ kw_map_data_markers(places) }}` (pass an array of GeocodableEntityInterface objects)
   - activate cluster feature with `{{ kw_map_data_cluster({ maxZoom: 10, minPoints: 5 }) }}` (pass SuperCluster options, see https://github.com/mapbox/supercluster#options)
   - load remote markers with `{{ kw_map_data_remote_markers(asset('path/to/file.json')) }}`
-  - bound a search form with `{{ kw_map_data_search_address('#map-address','#map-address-submit', 15) }}` (pass the css selector of the input text and submit button, the last parameter (zoom) is optional and defaults to 13)
+  - bound a search form with `{{ kw_map_data_search_address('#map-address','#map-address-submit') }}` (pass the css selector of the input text and submit button)
   - enable street view with `{{ kw_map_data_street_view('#street-view',place) }}` (pass the css selector of the container and a GeocodableEntityInterface object)
   - or enable street view with `{{ kw_map_data_street_view('#street-view',41.9027835, 12.4963655) }}` (pass the css selector of the container and a couple of float)
 
@@ -242,7 +253,6 @@ Here all the data-attribute supported:
   - `data-map-remote-markers` an url from which load markers in json format
   - `data-map-search-address` the css selector of the input text used to center the map
   - `data-map-search-submit` the css selector of the submit button used to center the map
-  - `data-map-search-zoom` the zoom level after a successful address search
   - `data-map-street-view` the css selector of the element that will contain the street view 
   - `data-map-street-view-position` a json string that represent a LatLngLiteral
 
@@ -290,7 +300,7 @@ Map with zoom=3, marker in all places (an array of GeocodableEntityInterface obj
             {{ kw_map_data_center(places[0]) }}
             {{ kw_map_data_zoom(3) }}
             {{ kw_map_data_markers(places) }}
-            {{ kw_map_data_search_address('#map-address','#map-address-submit',20) }}
+            {{ kw_map_data_search_address('#map-address','#map-address-submit') }}
             {{ kw_map_data_street_view('#street-view',places[2]) }}
     ></div>
 </div>
