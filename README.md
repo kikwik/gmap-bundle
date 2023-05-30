@@ -230,15 +230,15 @@ Display Maps
 ```
 
 Then place a div on the page for each map, and use the twig helpers:
-  - set map center with `{{ kw_map_data_center(-31.56391, 147.154312) }}` (pass a couple of float)
-  - or set map center with `{{ kw_map_data_center(place) }}` (pass a GeocodableEntityInterface object)
-  - set map zoom with `{{ kw_map_data_zoom(3) }}` (pass an integer)
-  - load markers with `{{ kw_map_data_markers(places) }}` (pass an array of GeocodableEntityInterface objects)
-  - activate cluster feature with `{{ kw_map_data_cluster({ maxZoom: 10, minPoints: 5 }) }}` (pass SuperCluster options, see https://github.com/mapbox/supercluster#options)
-  - load remote markers with `{{ kw_map_data_remote_markers(asset('path/to/file.json')) }}`
-  - bound a search form with `{{ kw_map_data_search_address('#map-address','#map-address-submit', { findNearestMarker: true }) }}` (pass the css selector of the input text and submit button)
-  - enable street view with `{{ kw_map_data_street_view('#street-view',place) }}` (pass the css selector of the container and a GeocodableEntityInterface object)
-  - or enable street view with `{{ kw_map_data_street_view('#street-view',41.9027835, 12.4963655) }}` (pass the css selector of the container and a couple of float)
+  - `{{ kw_map_data_center(-31.56391, 147.154312) }}` - set map center, parameters are a couple of float
+  - `{{ kw_map_data_center(place) }}` - set map center, parameter is a GeocodableEntityInterface object
+  - `{{ kw_map_data_zoom(3) }}` - set map zoom, parameter is an integer
+  - `{{ kw_map_data_markers(places) }}` - load markers, parameter is an array of GeocodableEntityInterface objects
+  - `{{ kw_map_data_cluster({ maxZoom: 10, minPoints: 5 }, 'darkgreen') }}` - activate cluster feature, parameters are an array of SuperCluster options, (see https://github.com/mapbox/supercluster#options) and an optional color (this activate the SingleColorRenderer)
+  - `{{ kw_map_data_remote_markers(asset('path/to/file.json')) }}` - load remote markers, parameter is the remote url
+  - `{{ kw_map_data_search_address('#map-address','#map-address-submit', { findNearestMarker: true }) }}` - bound a search form, parameters are the css selector of the input text, the css selector of the submit button and an array of options
+  - `{{ kw_map_data_street_view('#street-view',place) }}` - enable street view, parameters are the css selector of the container and a GeocodableEntityInterface object
+  - `{{ kw_map_data_street_view('#street-view',41.9027835, 12.4963655) }}` - enable street view, parameters are the css selector of the container and a couple of float
 
 Here all the data-attribute supported:
   - `data-map-center` a json string that represent a LatLngLiteral
@@ -250,6 +250,7 @@ Here all the data-attribute supported:
     - `icon` the icon file (optional)
     - `identifier` a sting that identify the marker (optional)
   - `data-map-cluster` a json string that represent the SuperCluster options (see https://github.com/mapbox/supercluster#options)
+  - `data-map-cluster-color` a color string for the cluster's SingleColorRenderer
   - `data-map-remote-markers` an url from which load markers in json format
   - `data-map-search-address` the css selector of the input text used to center the map
   - `data-map-search-submit` the css selector of the submit button used to center the map

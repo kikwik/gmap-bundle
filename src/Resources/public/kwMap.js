@@ -39,8 +39,8 @@ class kwMap
                         // fit bounds to bounds or viewport of the searched result
                         if(results[0].geometry.bounds) {this.map.fitBounds(results[0].geometry.bounds);}
                         else if(results[0].geometry.viewport) {this.map.fitBounds(results[0].geometry.viewport);}
-                        else {this.map.setZoom(15)};
-
+                        else {this.map.setZoom(18)};
+                        
                         if(this.mapElement.dataset.mapSearchFindNearestMarker)
                         {
                             // zoom out to include at least one marker
@@ -176,11 +176,24 @@ class kwMap
             {
                 const options = JSON.parse(this.mapElement.dataset.mapCluster);
                 const algorithm = new markerClusterer.SuperClusterAlgorithm(options);
-                this.markerCluster = new markerClusterer.MarkerClusterer({
-                    algorithm,
-                    map: this.map,
-                    markers: this.markers
-                });
+                if(this.mapElement.dataset.mapClusterColor)
+                {
+                    this.markerCluster = new markerClusterer.MarkerClusterer({
+                        algorithm,
+                        map: this.map,
+                        markers: this.markers,
+                        renderer: new SingleColorRenderer(this.mapElement.dataset.mapClusterColor)
+                    });
+                }
+                else
+                {
+                    this.markerCluster = new markerClusterer.MarkerClusterer({
+                        algorithm,
+                        map: this.map,
+                        markers: this.markers
+                    });
+                }
+
             }
         }
     }
@@ -270,3 +283,59 @@ class kwMap
     }
 }
 
+class SingleColorRenderer {
+    constructor(color) {  // Constructor
+        this.color = color;
+    }
+
+    render({ count, position }, stats, map) {
+        // create svg url with fill color
+        const svg = `<svg fill="${this.color}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+                  <circle cx="120" cy="120" opacity=".6" r="70" />
+                  <circle cx="120" cy="120" opacity=".3" r="90" />
+                  <circle cx="120" cy="120" opacity=".2" r="110" />
+                </svg>`;
+        // adjust zIndex to be above other markers
+        const zIndex = Number(google.maps.Marker.MAX_ZINDEX) + count;
+        if (google.maps.marker &&
+            map.getMapCapabilities().isAdvancedMarkersAvailable) {
+            // create cluster SVG element
+            const div = document.createElement("div");
+            div.innerHTML = svg;
+            const svgEl = div.firstElementChild;
+            svgEl.setAttribute("width", "50");
+            svgEl.setAttribute("height", "50");
+            // create and append marker label to SVG
+            const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            label.setAttribute("x", "50%");
+            label.setAttribute("y", "50%");
+            label.setAttribute("style", "fill: #FFF");
+            label.setAttribute("text-anchor", "middle");
+            label.setAttribute("font-size", "50");
+            label.setAttribute("dominant-baseline", "middle");
+            label.appendChild(document.createTextNode(`${count}`));
+            svgEl.appendChild(label);
+            const clusterOptions = {
+                map,
+                position,
+                zIndex,
+                content: div.firstElementChild,
+            };
+            return new google.maps.marker.AdvancedMarkerElement(clusterOptions);
+        }
+        const clusterOptions = {
+            position,
+            zIndex,
+            icon: {
+                url: `data:image/svg+xml;base64,${window.btoa(svg)}`,
+                scaledSize: new google.maps.Size(45, 45),
+            },
+            label: {
+                text: String(count),
+                color: "rgba(255,255,255,0.9)",
+                fontSize: "12px",
+            },
+        };
+        return new google.maps.Marker(clusterOptions);
+    }
+}

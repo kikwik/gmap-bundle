@@ -102,9 +102,10 @@ SCRIPT;
         return 'data-map-markers="'.htmlspecialchars(json_encode($data)).'"';
     }
 
-    public function getDataAttributeMapCluster(array $options = [])
+    public function getDataAttributeMapCluster(array $superClusterOptions = [], string $rendererColor = null)
     {
-        return 'data-map-cluster="'.htmlspecialchars(json_encode($options)).'"';
+        $rendererColorOption = $rendererColor ? ' data-map-cluster-color="'.$rendererColor.'"' : '';
+        return 'data-map-cluster="'.htmlspecialchars(json_encode($superClusterOptions)).'"'.$rendererColorOption;
     }
 
     public function getDataAttributeMapRemoteMarkers(string $url)
