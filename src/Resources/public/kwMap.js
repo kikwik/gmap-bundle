@@ -34,9 +34,13 @@ class kwMap
                 geocoder.geocode( { 'address': textInput.value}, (results, status) => {
                     if (status == 'OK')
                     {
-                        // center map and fit bounds to the searched point
+                        // center map in the searched point
                         this.map.setCenter(results[0].geometry.location);
-                        this.map.fitBounds(results[0].geometry.bounds);
+                        // fit bounds to bounds or viewport of the searched result
+                        if(results[0].geometry.bounds) {this.map.fitBounds(results[0].geometry.bounds);}
+                        else if(results[0].geometry.viewport) {this.map.fitBounds(results[0].geometry.viewport);}
+                        else {this.map.setZoom(15)};
+
                         if(this.mapElement.dataset.mapSearchFindNearestMarker)
                         {
                             // zoom out to include at least one marker
