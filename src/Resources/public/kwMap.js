@@ -28,14 +28,38 @@ class kwMap
             const geocoder = new google.maps.Geocoder();
             this.mapSearchSubmit = document.querySelector(this.mapElement.dataset.mapSearchSubmit);
             this.mapSearchSubmit.addEventListener('click',(e) => {
+                this.hideMessage();
                 e.preventDefault();
                 const textInput = document.querySelector(this.mapElement.dataset.mapSearchAddress);
                 geocoder.geocode( { 'address': textInput.value}, (results, status) => {
-                    if (status == 'OK') {
+                    if (status == 'OK')
+                    {
+                        // center map and fit bounds to the searched point
                         this.map.setCenter(results[0].geometry.location);
                         this.map.fitBounds(results[0].geometry.bounds);
-                    } else {
+                        if(this.mapElement.dataset.mapSearchFindNearestMarker)
+                        {
+                            // zoom out to include at least one marker
+                            var currentZoom = this.map.getZoom();
+                            if(currentZoom != undefined)
+                            {
+                                while(this.getVisibleMarkers().length == 0 && currentZoom > 1)
+                                {
+                                    currentZoom--;
+                                    this.map.setZoom(currentZoom);
+                                }
+                                currentZoom--;
+                                this.map.setZoom(currentZoom);
+                            }
+                        }
+                    }
+                    else
+                    {
                         this.resetView();
+                        if(textInput.value)
+                        {
+                            this.showMessage(textInput.value+': indirizzo non trovato');
+                        }
                     }
                 });
             })
@@ -221,19 +245,24 @@ class kwMap
     showMessage(messageTxt) {
         if(!this.messageBox)
         {
-            this.messageBox = document.createElement('button');
+            this.messageBox = document.createElement('div');
             this.messageBox.style.display = 'none';
-            this.messageBox.style.margin = "10px";
-            this.messageBox.padding = "10px";
-            this.messageBox.classList.add("custom-map-control-button");
-            this.map.controls[google.maps.ControlPosition.TOP_CENTER].push(this.messageBox);
+            this.messageBox.style.margin = "15px";
+            this.messageBox.style.padding = "5px";
+            this.messageBox.style.background = 'white';
+            this.messageBox.style.color = 'black';
+            this.messageBox.style.border = '1px solid black';
+            this.map.controls[google.maps.ControlPosition.LEFT_TOP].push(this.messageBox);
         }
         this.messageBox.textContent = messageTxt;
         this.messageBox.style.display = 'block';
     }
 
     hideMessage() {
-        this.messageBox.style.display = 'none';
+        if(this.messageBox)
+        {
+            this.messageBox.style.display = 'none';
+        }
     }
 }
 

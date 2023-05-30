@@ -112,9 +112,10 @@ SCRIPT;
         return 'data-map-remote-markers="'.$url.'"';
     }
 
-    public function getDataAttributeMapSearchAddress(string $addressSelector, string $submitSelector)
+    public function getDataAttributeMapSearchAddress(string $addressSelector, string $submitSelector, array $options = [])
     {
-        return 'data-map-search-address="'.$addressSelector.'" data-map-search-submit="'.$submitSelector.'"';
+        $findNearestOption = isset($options['findNearestMarker']) ? ' data-map-search-find-nearest-marker="'.$options['findNearestMarker'].'"' : '';
+        return 'data-map-search-address="'.$addressSelector.'" data-map-search-submit="'.$submitSelector.'"'.$findNearestOption;
     }
 
     public function getDataAttributeMapStreetView(string $selector, $objectOrLatitude, $longitude = null)
