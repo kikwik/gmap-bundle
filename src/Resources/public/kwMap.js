@@ -74,14 +74,18 @@ class kwMap
         {
             const streetElement = document.querySelector(this.mapElement.dataset.mapStreetView);
             const streetPosition = JSON.parse(this.mapElement.dataset.mapStreetViewPosition);
-            // create the street view
-            const panorama = new google.maps.StreetViewPanorama(
-                streetElement,
-                {
-                    position: streetPosition,
-                }
-            );
 
+            // create the street view object
+            const panorama = new google.maps.StreetViewPanorama(streetElement);
+
+            // get the outdoor panorama at streetPosition coordinates
+            const sv = new google.maps.StreetViewService();
+            sv.getPanorama({ location: streetPosition, radius: 50, source: 'outdoor' }).then(function({data}){
+                panorama.setPano(data.location.pano);
+                panorama.setVisible(true);
+            });
+
+            // set the following Pov on position_changed
             const { spherical } = await google.maps.importLibrary("geometry");
             panorama.addListener('position_changed', function(){
                 const finalHeading = spherical.computeHeading(panorama.getPosition(), streetPosition);
