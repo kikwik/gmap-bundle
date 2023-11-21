@@ -91,4 +91,7 @@ class kwAutocomplete
         });
     }
 
+    getAutocomplete() {
+        return this.autocomplete;
+    }
 }
