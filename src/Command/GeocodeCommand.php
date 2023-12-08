@@ -14,8 +14,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class GeocodeCommand extends Command
 {
-    protected static $defaultName = 'kikwik:gmap:geocode';
-    protected static $defaultDescription = 'Geocode entities that implements GeocodableEntityInterface';
     /**
      * @var EntityManagerInterface
      */
@@ -32,15 +30,17 @@ class GeocodeCommand extends Command
         $this->googleMapsGeocoder = $googleMapsGeocoder;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
+            ->setName('kikwik:gmap:geocode')
+            ->setDescription('Geocode entities that implements GeocodableEntityInterface')
             ->addOption('limit',null, InputOption::VALUE_OPTIONAL,'Limit the number of request (per entity type)',5)
             ->addOption('failed',null,InputOption::VALUE_NONE,'Try to geocode the failed ones')
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
