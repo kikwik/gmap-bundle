@@ -164,7 +164,7 @@ Display Maps
 ------------
 
 
-- Call the `kw_gmap_script` twig function inside the javascripts block to initialize the GMap library, 
+- Call the `kw_gmap_script_tags` twig function inside the javascripts block to initialize the GMap library, eventually pass the optional nonce value
 - then create a new `kwMap` object 
 - and call its `init` function that return a promise that is resolved when the map is loaded
 
@@ -172,7 +172,7 @@ Display Maps
 {% block javascripts %}
     {{ parent() }}
  
-    {{ kw_gmap_script_tags() }}
+    {{ kw_gmap_script_tags(csp_nonce('script')) }}
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             let mapElements = document.querySelectorAll('.kw-map');

@@ -43,12 +43,18 @@ class GmapExtension extends AbstractExtension
 <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
 SCRIPT;
 
-    public function getGmapScriptTags()
+    public function getGmapScriptTags(string $nonceValue = null)
     {
         $kwMapVersion = filemtime(__DIR__.'/../Resources/public/kwMap.js');
         $kwAutocompleteVersion = filemtime(__DIR__.'/../Resources/public/kwAutocomplete.js');
 
-        return str_replace('YOUR_API_KEY_HERE',$this->gmapApiKeyJs,$this->_gmapInit)
+        $initScript = str_replace('YOUR_API_KEY_HERE',$this->gmapApiKeyJs,$this->_gmapInit);
+        if($nonceValue)
+        {
+            $initScript = str_replace('<script>','<script nonce="'.$nonceValue.'">',$initScript);
+        }
+
+        return $initScript
             .'<script src="/bundles/kikwikgmap/kwMap.js?v='.$kwMapVersion.'"></script>'
             .'<script src="/bundles/kikwikgmap/kwAutocomplete.js?v='.$kwAutocompleteVersion.'"></script>'
             ;
